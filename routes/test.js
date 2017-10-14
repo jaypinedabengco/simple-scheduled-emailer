@@ -6,7 +6,7 @@ var email_service = require('./../service/email.service');
 /* GET users listing. */
 router.get('/', function(req, res, next) {
     email_service
-        .sendStudentLatestApplicationViaEmail(1)
+        .sendStudentLatestApplicationViaEmail(2)
         .then(
             (result) => res.status(200).json(result), 
             (err) => {
