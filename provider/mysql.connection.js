@@ -6,6 +6,8 @@ var pool = mysql.createPool({
     user: config.db.user,
     password: config.db.password,
     database: config.db.database,
+    acquireTimeout : (50 * 10000),
+    connectTimeout : (50 * 10000)    
 });
 
 /**
