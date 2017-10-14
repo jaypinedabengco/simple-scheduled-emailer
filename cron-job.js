@@ -36,4 +36,4 @@ new cron.CronJob(config.cron.evening,
     true, 
     TIMEZONE
 );
-console.log('CRON JOB STARTED', config.cron.afternoon);
+console.log('CRON JOB STARTED', config.cron.evening);
