@@ -1,0 +1,1 @@
+docker logs -f application_csv_emailer
