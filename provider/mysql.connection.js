@@ -3,9 +3,12 @@ var config = require('./../configuration');
 
 var pool = mysql.createPool({
     host: config.db.host,
-    user: config.db.user,
+    user: config.db.user, 
     password: config.db.password,
     database: config.db.database,
+    connectionLimit : config.db.connectionLimit,
+    acquireTimeout : (50 * 10000),
+    connectTimeout : (50 * 10000)    
 });
 
 /**
