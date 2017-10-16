@@ -10,5 +10,5 @@ docker run --restart always \
 -e "CSV_REPORT_EMAILER_TO=$CSV_REPORT_EMAILER_TO" -e "CSV_REPORT_EMAILER_CC=$CSV_REPORT_EMAILER_CC" -e "CSV_REPORT_EMAILER_BCC=$CSV_REPORT_EMAILER_BCC" \
 -p 41965:3000 -d --name application_csv_emailer student_application_csv_emailer &&
 
-echo "DONE you can test it by running ' curl -i localhost:41965/test '" && 
+echo "DONE you can test it by running ' curl -i localhost:41965/api/healthcheck '" && 
 sh ./dockerize/log.sh
