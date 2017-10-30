@@ -134,9 +134,6 @@ function sendEmailWithCSVAttachmentForApprovedAgencies(agencies){
         var fields = [
             'Company_Name', 
             'Head_Office_Address_Country', 
-            'Principal_Contact_Title', 
-            'Principal_Contact_Firstname', 
-            'Principal_Contact_Lastname', 
             'Head_Office_Contact_Title', 
             'Head_Office_Contact_Firstname', 
             'Head_Office_Contact_Lastname', 

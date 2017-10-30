@@ -21,9 +21,6 @@ function getAllApprovedAgencies(){
             var sql = 'SELECT DISTINCT ';
                 sql += '    agency.name Company_Name, ';
                 sql += '    country.name Head_Office_Address_Country, ';
-                sql += '    agency_principal_contact_salutation.name Principal_Contact_Title, ';
-                sql += '    agency_principal_contact.firstname Principal_Contact_Firstname, ';
-                sql += '    agency_principal_contact.lastname Principal_Contact_Lastname, ';
                 sql += '    primary_contact_salutation.name Head_Office_Contact_Title, ';
                 sql += '    primary_contact.firstname Head_Office_Contact_Firstname , ';
                 sql += '    primary_contact.lastname Head_Office_Contact_Lastname, ';
@@ -33,14 +30,19 @@ function getAllApprovedAgencies(){
 
                 sql += '    LEFT JOIN agency_address ON agency.id = agency_address.agency_id        ';
                 sql += '    LEFT JOIN country ON agency_address.country_id = country.id        ';
-                sql += '    LEFT JOIN agency_principal_contact ON agency.id = agency_principal_contact.agency_id       ';
-                sql += '    LEFT JOIN salutation agency_principal_contact_salutation ON agency_principal_contact.salutation_id = agency_principal_contact_salutation.id     ';
                 sql += '    LEFT JOIN primary_contact ON agency.id = primary_contact.agency_id        ';
                 sql += '    LEFT JOIN salutation primary_contact_salutation ON primary_contact.salutation_id = primary_contact_salutation.id     ';
                 sql += '    LEFT JOIN agency_status_history ON agency.agency_status_id = agency_status_history.agency_status_id AND agency.id = agency_status_history.agency_id     ';
+                sql += '    LEFT JOIN user agent ON agency.id = agent.agency_id ';
+                sql += '    LEFT JOIN user_auth ON agent.id = user_auth.user_id ';
 
-                sql += ' WHERE agency.agency_status_id = 2 AND agency.deleted is false        ';
-                sql += ' ORDER BY agency_status_history.update_date DESC        ';
+                sql += ' WHERE ';
+                sql += '    agency.agency_status_id = 2 '; /* should be approved */
+                sql += '    AND agency.deleted is false '; /* should not be deleted */
+                sql += '    AND agency.id <> 10000 '; /* do not include virtual agency */
+                sql += '    AND user_auth.created_from is NULL || user_auth.created_from IN (1, 2)'; /* Studylane/GSP Only */
+                
+                sql += ' ORDER BY agency_status_history.update_date DESC ';
             
             connection.query(sql, params, (err, resultSet) => {
                 if ( err ){
