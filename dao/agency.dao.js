@@ -17,7 +17,7 @@ function getAllApprovedAgencies(){
             }
 
             var params = [];
-
+ 
             var sql = 'SELECT DISTINCT ';
                 sql += '    agency.name Company_Name, ';
                 sql += '    country.name Head_Office_Address_Country, ';
