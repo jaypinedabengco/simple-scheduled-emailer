@@ -1,13 +1,20 @@
 ############################################
 ##ADD THE FOLLOWING ON SERVER ENV####
-############################################
+############################################      
 
 ####################
 # CSV EMAILER
 ###################
-#export CSV_REPORT_EMAILER_TO="???@??.com, ???@??.com"
-#export CSV_REPORT_EMAILER_CC="???@??.com, ???@??.com"
-#export CSV_REPORT_EMAILER_BCC="???@??.com, ???@??.com"
+
+#student application 
+#export CSV_REPORT_EMAILER_STUDENT_APP_TO="???@??.com, ???@??.com"
+#export CSV_REPORT_EMAILER_STUDENT_APP_CC="???@??.com, ???@??.com"
+#export CSV_REPORT_EMAILER_STUDENT_APP_BCC="???@??.com, ???@??.com"
+
+#approved agencies 
+#export CSV_REPORT_EMAILER_APPROVED_AGENCY_TO="???@??.com, ???@??.com"
+#export CSV_REPORT_EMAILER_APPROVED_AGENCY_CC="???@??.com, ???@??.com"
+#export CSV_REPORT_EMAILER_APPROVED_AGENCY_BCC="???@??.com, ???@??.com"
 
 
 FROM node:6.11.2

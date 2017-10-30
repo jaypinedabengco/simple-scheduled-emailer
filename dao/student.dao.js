@@ -5,10 +5,10 @@ exports.getLatestStudentCourseApplication = getLatestStudentCourseApplication;
 ////
 
 /**
- * If days not provided, then return all
- * @param {*} days 
+ * If hours not provided, then return all
+ * @param {*} hours 
  */
-function getLatestStudentCourseApplication(days){
+function getLatestStudentCourseApplication(hours){
     return new Promise((resolve, reject) => {
 
         database.getConnection((err, connection) => {
@@ -35,9 +35,9 @@ function getLatestStudentCourseApplication(days){
                 sql += '    INNER JOIN agency ON agent.agency_id = agency.id ';
                 sql += '    LEFT JOIN country ON student.country_id = country.id';
 
-                if ( days > 0 ){
-                    sql += ' WHERE course_application.date_created > timestampadd(day, -?, now()) ';
-                    params.push(days);
+                if ( hours > 0 ){
+                    sql += ' WHERE course_application.date_created > timestampadd(hour, -?, now()) ';
+                    params.push(hours);
                 }
 
                 sql += ' ORDER BY  course_application.date_created DESC';

@@ -16,17 +16,32 @@ module.exports = {
         quitwait: "false",
         efrom: "<noreply@globalstudypartners.com>",
         student_app_email: {
-            to: process.env.CSV_REPORT_EMAILER_TO,
-            cc: process.env.CSV_REPORT_EMAILER_CC,
-            bcc: process.env.CSV_REPORT_EMAILER_BCC
+            to: process.env.CSV_REPORT_EMAILER_STUDENT_APP_TO,
+            cc: process.env.CSV_REPORT_EMAILER_STUDENT_APP_CC,
+            bcc: process.env.CSV_REPORT_EMAILER_STUDENT_APP_BCC
+        }, 
+        approved_agencies_email: {
+            to: process.env.CSV_REPORT_EMAILER_APPROVED_AGENCY_TO,
+            cc: process.env.CSV_REPORT_EMAILER_APPROVED_AGENCY_CC,
+            bcc: process.env.CSV_REPORT_EMAILER_APPROVED_AGENCY_BCC            
         }
     },
     cron: {
-        timezone: 'Australia/Brisbane',
-        morning: '00 00 08 * * *',  //8 AM
-        afternoon: '00 00 16 * * *',  //3 PM
-        evening: '00 00 21 * * *',  //9 PM
-        student_day_to_get: 1
+        student_app_email : {
+            timezone: 'Australia/Brisbane',
+            morning: '00 00 08 * * *',  //8 AM
+            afternoon: '00 00 16 * * *',  //3 PM
+            evening: '00 00 21 * * *',  //9 PM
+            fetch_in_hours: {
+                morning: 11, 
+                afternoon: 7, 
+                evening: 6
+            }
+        }, 
+        approved_agencies_email : {
+            timezone: 'Australia/Brisbane',
+            every_friday : '00 00 17 * * 5' //every friday, 5pm
+        }
     }
 
 
