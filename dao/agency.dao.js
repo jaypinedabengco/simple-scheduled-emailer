@@ -40,6 +40,7 @@ function getAllApprovedAgencies(){
                 sql += '    agency.agency_status_id = 2 '; /* should be approved */
                 sql += '    AND agency.deleted is false '; /* should not be deleted */
                 sql += '    AND agency.id <> 10000 '; /* do not include virtual agency */
+                sql += '    AND agent.role_id IN (3,4,5)  '; /* should be agent, master agent and location agent */
                 sql += '    AND ( user_auth.created_from is NULL || user_auth.created_from IN (1, 2) )'; /* Studylane/GSP Only */
                 
                 sql += ' ORDER BY agency_status_history.update_date DESC ';
