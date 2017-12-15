@@ -34,7 +34,7 @@ exports.sendLatestApprovedAgenciesViaEmail = sendLatestApprovedAgenciesViaEmail;
 function sendStudentLatestApplicationViaEmail(elapsed_hours) {
     return new Promise((resolve, reject) => {
         student_dao
-            .getLatestStudentCourseApplication(elapsed_hours)
+            .getLatestStudentsWithOrWithoutCourseApplication(elapsed_hours)
             .then(sendEmailWithCSVAttachmentForStudent)
             .then(resolve, reject)
             .catch(reject);

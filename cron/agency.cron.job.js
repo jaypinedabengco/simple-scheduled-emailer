@@ -11,7 +11,7 @@ const STARTED_MESSAGE = 'CRON JOB STARTED FOR AGENCY';
  * 
  */
 new cron.CronJob(CRON_CONFIG.every_friday, 
-    () => { email_service.sendLatestApprovedAgenciesViaEmail() },  //11 hours
+    () => { email_service.sendLatestApprovedAgenciesViaEmail(); },  //11 hours
     () => {},
     true, 
     TIMEZONE

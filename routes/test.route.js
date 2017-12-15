@@ -22,9 +22,9 @@ function sendStudentLatestApplicationEmail(req, res, next) {
             (result) => res.status(200).json(result), 
             (err) => {
                 console.log('error', err);
-                res.send(err)
+                res.send(err);
             }
-        )
+        );
 }
 
 /**
@@ -40,9 +40,9 @@ function sendApprovedAgenciesEmail(req, res, next){
             (result) => res.status(200).json(result), 
             (err) => {
                 console.log('error', err);
-                res.send(err)
+                res.send(err);
             }
-        )
+        );
 }
 
 module.exports = router;
