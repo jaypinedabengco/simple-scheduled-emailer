@@ -25,6 +25,7 @@ function getLatestStudentsWithOrWithoutCourseApplication(hours){
                     agency.name agency_name, 
                     CONCAT(agent.firstname, " ", agent.lastname) Agent_Name
                 FROM user student 
+                    LEFT JOIN user_auth student_auth ON student.id = student_auth.user_id
                     LEFT JOIN student_agent ON student.id = student_agent.student_id
                     LEFT JOIN user agent ON student_agent.agent_id = agent.id 
                     LEFT JOIN course_application ON student.id = course_application.student_id
@@ -34,6 +35,10 @@ function getLatestStudentsWithOrWithoutCourseApplication(hours){
                     LEFT JOIN country ON student.country_id = country.id 
 
                 WHERE 
+                    student.role_id = 2 
+
+                    -- should be created either on studylane or gsp
+                    AND ( student_auth.created_from is NULL || student_auth.created_from IN (1,2) )
             `;
 
             if ( hours > 0 ){
