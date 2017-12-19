@@ -43,8 +43,10 @@ function getLatestStudentsWithOrWithoutCourseApplication(hours){
 
             if ( hours > 0 ){
                 sql += `
-                    course_application.date_created > timestampadd(day, -?, now()) 
-                    || FROM_UNIXTIME(student.date_created/1000) >  timestampadd(day, -?, now())                 
+                    AND ( 
+                        course_application.date_created > timestampadd(day, -?, now()) 
+                        || FROM_UNIXTIME(student.date_created/1000) >  timestampadd(day, -?, now()) 
+                    )                 
                 `;
                 params.push(hours);
                 params.push(hours);
