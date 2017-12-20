@@ -129,7 +129,6 @@ function getAllStudentsDetailedInformation(){
         database.getConnection((err, connection) => {
             const sql = `
                 SELECT DISTINCT 
-
                     student.firstname Student_First_Name, 
                     student.lastname Student_Last_Name, 
                     student_country.name Student_Country, 
@@ -143,7 +142,7 @@ function getAllStudentsDetailedInformation(){
                     provider.provider_name Application_Institution_Name, 
                     -- Application_Immediate_Prior_Status (do on code)
                     course_application.date_created Date_Application_Created, 
-                    timestampdiff(DAY, course_application.date_created, NOW()) Elapsed_Time_in_Days_Date_of_application,
+                    timestampdiff(DAY, course_application.date_created, NOW()) Elapsed_Time_in_Days_Date_of_Application,
                     course_application_status.label Application_Current_Status, 
                     course_application_latest_history.update_date Date_Change_of_Application_Status,
                     CONCAT(course_application_latest_history_updated_by.firstname, ' ', course_application_latest_history_updated_by.lastname) Application_Status_Changed_By,
