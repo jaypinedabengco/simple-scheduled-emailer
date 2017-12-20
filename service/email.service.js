@@ -159,7 +159,7 @@ function sendEmailWithCSVAttachmentForStudentFullDetails(data) {
                         <div>[SYSTEM GENERATED]</div>
                         <br/><br/>
                         <div>
-                            <b>Student Total : ${ data.length }<b/>
+                            <b>No. of Entries : ${ data.length }<b/>
                         </div>
                     </div>
                 `;
