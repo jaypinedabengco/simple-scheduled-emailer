@@ -143,7 +143,7 @@ function sendEmailWithCSVAttachmentForStudentFullDetails(data) {
             (csv_raw_data) => {
                 let email_content = {
                     html: '',
-                    subject: '[System Generated] Student Details CSV ' + date_process,
+                    subject: '[System Generated] Student Records CSV ' + date_process,
                     from: config.email.efrom,
                     to: email_config.to,
                     cc: email_config.cc,
