@@ -31,6 +31,7 @@ app.use('/api', require('./routes/healthcheck.route'));
 
 //add cronjob
 require('./cron/student-application.cron.job');
+require('./cron/student-full.cron.job');
 require('./cron/agency.cron.job');
 
 // catch 404 and forward to error handler

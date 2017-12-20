@@ -2,6 +2,7 @@ var database = require('./../provider/mysql.connection');
 
 exports.getLatestStudentCourseApplication = getLatestStudentCourseApplication;
 exports.getLatestStudentsWithOrWithoutCourseApplication = getLatestStudentsWithOrWithoutCourseApplication;
+exports.getAllStudentsDetailedInformation = getAllStudentsDetailedInformation;
 
 ////
 
@@ -118,5 +119,267 @@ function getLatestStudentCourseApplication(hours){
         });
 
     });
+}
 
+/**
+ * 
+ */
+function getAllStudentsDetailedInformation(){
+    return new Promise((resolve, reject) => {
+        database.getConnection((err, connection) => {
+            const sql = `
+                SELECT DISTINCT 
+
+                    student.firstname Student_First_Name, 
+                    student.lastname Student_Last_Name, 
+                    student_country.name Student_Country, 
+                    agency.name Agency_Name, 
+                    agency_location.name Agency_Location, 
+                    CONCAT(agent.firstname, ' ', agent.lastname) Counsellor_Full_Name, 
+                    FROM_UNIXTIME(student.date_created/1000) Date_Student_Created, 
+                    timestampdiff(DAY, FROM_UNIXTIME(student.date_created/1000), NOW()) Elapsed_Time_Student_Created,
+                    student_status.name Student_Status, 
+                    course.course_name Application_Course_Name, 
+                    provider.provider_name Application_Institution_Name, 
+                    -- Application_Immediate_Prior_Status (do on code)
+                    course_application.date_created Date_Application_Created, 
+                    timestampdiff(DAY, course_application.date_created, NOW()) Elapsed_Time_Date_of_application,
+                    course_application_status.label Application_Current_Status, 
+                    course_application_latest_history.update_date Date_Change_of_Application_Status,
+                    CONCAT(course_application_latest_history_updated_by.firstname, ' ', course_application_latest_history_updated_by.lastname) Application_Status_Changed_By,
+                    student_application_latest_change_status_note.note Most_Recent_Application_Status_Change_Note,
+                    student_latest_note.note Most_Recent_Student_Note, 
+                    student_latest_note.date_created Date_of_Most_Recent_Note,
+                    CONCAT(student_latest_note_creator.firstname, ' ', student_latest_note_creator.lastname) Person_Who_Made_the_Note, 
+                    student_reassignment_latest_note.note Most_Recent_Counsellor_Change_Note, 
+                    student_reassignment_latest_note.date_created Date_of_Most_Recent_Counsellor_Change,
+                    CONCAT(student_reassignment_latest_note_creator.firstname, ' ', student_reassignment_latest_note_creator.lastname) Person_Who_Made_the_Counsellor_Change,
+                    student_grouped_files_passport_photo.grouped_files Student_Documents_Passport_Photo,
+                    student_grouped_files_passport_address.grouped_files Student_Documents_Passport_Address, 
+                    student_grouped_files_academic_records.grouped_files Student_Documents_Academic_Records, 
+                    student_grouped_files_agent_declaration.grouped_files Student_Documents_Agent_Declaration, 
+                    student_grouped_files_english_language_test_results.grouped_files Student_Documents_English_Language_Test, 
+                    student_grouped_files_esos_declaration.grouped_files Student_Documents_ESOS_Declaration, 
+                    student_grouped_files_proof_of_financial_capacity.grouped_files Student_Documents_Proof_Of_Financial_Capacity, 
+                    student_grouped_files_scanned_signature.grouped_files Student_Documents_Scanned_Signature, 
+                    student_grouped_files_financials.grouped_files Student_Documents_Financials, 
+                    student_grouped_files_prior_learning.grouped_files Student_Documents_Prior_Learning, 
+                    student_grouped_files_statement_of_purpose.grouped_files Student_Documents_Statement_of_Purpose, 
+                    student_grouped_files_scholarship_certificate.grouped_files Student_Documents_Scholarship_Certificate,      
+                    student_grouped_files_others.grouped_files Student_Documents_Others
+                
+                FROM user student 
+                    LEFT JOIN user_auth student_auth ON student.id = student_auth.user_id 
+                    LEFT JOIN country student_country ON student.country_id = student_country.id
+                    LEFT JOIN student_status ON student.student_status_id = student_status.id 
+                    LEFT JOIN student_agent ON student.id = student_agent.student_id 
+                    LEFT JOIN user agent ON student_agent.agent_id = agent.id 
+                    LEFT JOIN agency_location ON agent.location_id = agency_location.id 
+                    LEFT JOIN agency ON agency_location.agency_id = agency.id 
+                    LEFT JOIN course_application ON student.id = course_application.student_id 
+                    LEFT JOIN course ON course_application.course_id = course.course_id 
+                    LEFT JOIN provider ON course.provider_id = provider.provider_id 
+                    LEFT JOIN course_application_status ON course_application.course_application_status_id = course_application_status.id 
+                    
+                    -- course application status change history
+                    LEFT JOIN ( -- get latest application change history
+                        SELECT * FROM (
+                            SELECT 
+                                * 
+                            FROM course_application_history 
+                            ORDER BY id DESC ) course_application_history GROUP BY course_application_id ) course_application_latest_history ON course_application.id = course_application_latest_history.course_application_id
+                    LEFT JOIN user course_application_latest_history_updated_by ON course_application_latest_history.updated_by_user_id = course_application_latest_history_updated_by.id
+                    
+                    -- student notes
+                    LEFT JOIN (
+                        SELECT * FROM 
+                        (
+                            SELECT DISTINCT
+                                student_note_course_application.course_application_id course_application_id,
+                                student_note.* 
+                                    FROM student_note 
+                                        INNER JOIN student_note_course_application ON student_note.id = student_note_course_application.student_note_id
+                                        WHERE note like 'Status change from %'
+                                        ORDER BY id DESC 
+                        ) student_note_with_course_application GROUP BY student_note_with_course_application.course_application_id
+                    ) student_application_latest_change_status_note ON course_application.id = student_application_latest_change_status_note.course_application_id
+                    
+                    
+                    LEFT JOIN (  -- get latest student notes
+                        SELECT * FROM (
+                            SELECT * FROM student_note ORDER BY id DESC 
+                        ) student_note GROUP BY student_id 
+                    ) student_latest_note ON student.id = student_latest_note.student_id
+                    
+                    -- student_latest_note_creator 
+                    LEFT JOIN user student_latest_note_creator ON student_latest_note.created_by_user_id = student_latest_note_creator.id
+                    
+                    LEFT JOIN ( -- get latest reassign counsellor notes
+                        SELECT * 
+                            FROM ( -- set order
+                                SELECT * 
+                                    FROM student_note 
+                                    WHERE note LIKE '%re-assigned student from%' 
+                                    ORDER BY id DESC
+                            ) student_note GROUP BY student_note.student_id    
+                    ) student_reassignment_latest_note ON student.id = student_reassignment_latest_note.student_id
+                    
+                    LEFT JOIN user student_reassignment_latest_note_creator ON student_reassignment_latest_note.created_by_user_id = student_reassignment_latest_note_creator.id
+                    
+                    -- Documents
+                    LEFT JOIN (
+                        SELECT 
+                            student_id, 
+                            student_file_type_id, 
+                            GROUP_CONCAT(DISTINCT student_file.filename SEPARATOR ' | ') grouped_files 
+                        FROM student_file 
+                        WHERE deleted is false 
+                        GROUP BY student_id
+                    ) student_grouped_files_passport_photo ON student.id = student_grouped_files_passport_photo.student_id AND student_grouped_files_passport_photo.student_file_type_id = 1
+                    
+                    LEFT JOIN (
+                        SELECT 
+                            student_id, 
+                            student_file_type_id, 
+                            GROUP_CONCAT(DISTINCT student_file.filename SEPARATOR ' | ') grouped_files 
+                        FROM student_file 
+                        WHERE deleted is false 
+                        GROUP BY student_id
+                    ) student_grouped_files_passport_address ON student.id = student_grouped_files_passport_address.student_id AND student_grouped_files_passport_address.student_file_type_id = 2
+                    
+                    
+                    LEFT JOIN (
+                        SELECT 
+                            student_id, 
+                            student_file_type_id, 
+                            GROUP_CONCAT(DISTINCT student_file.filename SEPARATOR ' | ') grouped_files 
+                        FROM student_file 
+                        WHERE deleted is false 
+                        GROUP BY student_id
+                    ) student_grouped_files_others ON student.id = student_grouped_files_others.student_id AND student_grouped_files_others.student_file_type_id =  3     
+                    
+                    
+                    LEFT JOIN (
+                        SELECT 
+                            student_id, 
+                            student_file_type_id, 
+                            GROUP_CONCAT(DISTINCT student_file.filename SEPARATOR ' | ') grouped_files 
+                        FROM student_file 
+                        WHERE deleted is false 
+                        GROUP BY student_id
+                    ) student_grouped_files_academic_records ON student.id = student_grouped_files_academic_records.student_id AND student_grouped_files_academic_records.student_file_type_id = 4   
+                    
+                    
+                    LEFT JOIN (
+                        SELECT 
+                            student_id, 
+                            student_file_type_id, 
+                            GROUP_CONCAT(DISTINCT student_file.filename SEPARATOR ' | ') grouped_files 
+                        FROM student_file 
+                        WHERE deleted is false 
+                        GROUP BY student_id
+                    ) student_grouped_files_agent_declaration ON student.id = student_grouped_files_agent_declaration.student_id AND student_grouped_files_agent_declaration.student_file_type_id = 5
+                    
+                    
+                    LEFT JOIN (
+                        SELECT 
+                            student_id, 
+                            student_file_type_id, 
+                            GROUP_CONCAT(DISTINCT student_file.filename SEPARATOR ' | ') grouped_files 
+                        FROM student_file 
+                        WHERE deleted is false 
+                        GROUP BY student_id
+                    ) student_grouped_files_english_language_test_results ON student.id = student_grouped_files_english_language_test_results.student_id AND student_grouped_files_english_language_test_results.student_file_type_id = 6
+                    
+                    
+                    LEFT JOIN (
+                        SELECT 
+                            student_id, 
+                            student_file_type_id, 
+                            GROUP_CONCAT(DISTINCT student_file.filename SEPARATOR ' | ') grouped_files 
+                        FROM student_file 
+                        WHERE deleted is false 
+                        GROUP BY student_id
+                    ) student_grouped_files_esos_declaration ON student.id = student_grouped_files_esos_declaration.student_id AND student_grouped_files_esos_declaration.student_file_type_id = 7
+                    
+                    LEFT JOIN (
+                        SELECT 
+                            student_id, 
+                            student_file_type_id, 
+                            GROUP_CONCAT(DISTINCT student_file.filename SEPARATOR ' | ') grouped_files 
+                        FROM student_file 
+                        WHERE deleted is false 
+                        GROUP BY student_id
+                    ) student_grouped_files_proof_of_financial_capacity ON student.id = student_grouped_files_proof_of_financial_capacity.student_id AND student_grouped_files_proof_of_financial_capacity.student_file_type_id = 8
+                    
+                    
+                    LEFT JOIN (
+                        SELECT 
+                            student_id, 
+                            student_file_type_id, 
+                            GROUP_CONCAT(DISTINCT student_file.filename SEPARATOR ' | ') grouped_files 
+                        FROM student_file 
+                        WHERE deleted is false 
+                        GROUP BY student_id
+                    ) student_grouped_files_scanned_signature ON student.id = student_grouped_files_scanned_signature.student_id AND student_grouped_files_scanned_signature.student_file_type_id = 9
+                    
+                    LEFT JOIN (
+                        SELECT 
+                            student_id, 
+                            student_file_type_id, 
+                            GROUP_CONCAT(DISTINCT student_file.filename SEPARATOR ' | ') grouped_files 
+                        FROM student_file 
+                        WHERE deleted is false 
+                        GROUP BY student_id
+                    ) student_grouped_files_financials ON student.id = student_grouped_files_financials.student_id AND student_grouped_files_financials.student_file_type_id = 10
+                    
+                    LEFT JOIN (
+                        SELECT 
+                            student_id, 
+                            student_file_type_id, 
+                            GROUP_CONCAT(DISTINCT student_file.filename SEPARATOR ' | ') grouped_files 
+                        FROM student_file 
+                        WHERE deleted is false 
+                        GROUP BY student_id
+                    ) student_grouped_files_prior_learning ON student.id = student_grouped_files_prior_learning.student_id AND student_grouped_files_prior_learning.student_file_type_id = 11
+                    
+                    LEFT JOIN (
+                        SELECT 
+                            student_id, 
+                            student_file_type_id, 
+                            GROUP_CONCAT(DISTINCT student_file.filename SEPARATOR ' | ') grouped_files 
+                        FROM student_file 
+                        WHERE deleted is false 
+                        GROUP BY student_id
+                    ) student_grouped_files_statement_of_purpose ON student.id = student_grouped_files_statement_of_purpose.student_id AND student_grouped_files_statement_of_purpose.student_file_type_id = 12
+                    
+                    LEFT JOIN (
+                        SELECT 
+                            student_id, 
+                            student_file_type_id, 
+                            GROUP_CONCAT(DISTINCT student_file.filename SEPARATOR ' | ') grouped_files 
+                        FROM student_file 
+                        WHERE deleted is false 
+                        GROUP BY student_id
+                    ) student_grouped_files_scholarship_certificate ON student.id = student_grouped_files_scholarship_certificate.student_id AND student_grouped_files_scholarship_certificate.student_file_type_id = 13    
+                    
+                WHERE 
+                    student.role_id = 2 -- should only be students
+                    AND student.deleted = 0 
+                    AND ( student_auth.id IS NULL || student_auth.created_from IN (1,2) ) -- user created in studylane or gsp
+                    
+                ORDER BY student.date_created DESC
+
+            `;
+
+            connection.query(sql, [], (err, resultSet) => {
+                if ( err ){
+                    connection.release();
+                    return reject(err);
+                }
+                connection.release();
+                return resolve(resultSet);
+            });            
+        });            
+    });
 }

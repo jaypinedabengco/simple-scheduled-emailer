@@ -5,9 +5,10 @@ var email_service = require('./../service/email.service');
 
 
 router.get('/student-latest-application', sendStudentLatestApplicationEmail);
+router.get('/student-full-details', sendAllStudentsLatestDetailsViaEmail);
 router.get('/approved-agencies', sendApprovedAgenciesEmail);
 
-
+//////
 
 /**
  * 
@@ -25,6 +26,24 @@ function sendStudentLatestApplicationEmail(req, res, next) {
                 res.send(err);
             }
         );
+}
+
+/**
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
+function sendAllStudentsLatestDetailsViaEmail(req, res, next){
+    email_service
+        .sendAllStudentsLatestDetailsViaEmail()
+        .then(
+            (result) => res.status(200).json(result), 
+            (err) => {
+                console.log('error', err);
+                res.send(err);
+            }
+        );        
 }
 
 /**

@@ -3,13 +3,22 @@ var router = express.Router();
 
 var healthcheck_service = require('./../service/healthcheck.service');
 
-/* GET users listing. */
-router.get('/healthcheck', function(req, res, next) {
+////
+
+router.get('/healthcheck', healthcheck);
+
+//////
+
+function healthcheck(req, res, next) {
     return healthcheck_service
         .getHealthCheck()
         .then(
-            result => res.status(200).json(result)
+            result => { 
+                //prettify
+                res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify(result, null, 3));
+            }
         ).catch(err => res.status(500).json(err));
-});
+}
 
 module.exports = router;

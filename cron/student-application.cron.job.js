@@ -5,7 +5,7 @@ var email_service = require('./../service/email.service');
 var CRON_CONFIG = config.cron.student_app_email;
 var TIMEZONE = CRON_CONFIG.timezone;
 
-const STARTED_MESSAGE = 'CRON JOB STARTED FOR STUDENT';
+const STARTED_MESSAGE = 'CRON JOB STARTED FOR STUDENT APPLICATION';
 
 /**
  * 
@@ -16,7 +16,7 @@ new cron.CronJob(CRON_CONFIG.morning,
     true, 
     TIMEZONE
 );
-console.log(STARTED_MESSAGE, CRON_CONFIG.morning);
+console.log(STARTED_MESSAGE, CRON_CONFIG.morning, TIMEZONE);
 
 /**
  * 
@@ -27,7 +27,7 @@ new cron.CronJob(CRON_CONFIG.afternoon,
     true, 
     TIMEZONE
 );
-console.log(STARTED_MESSAGE, CRON_CONFIG.afternoon); //6 hours
+console.log(STARTED_MESSAGE, CRON_CONFIG.afternoon, TIMEZONE);
 
 /**
  * 
@@ -38,4 +38,4 @@ new cron.CronJob(CRON_CONFIG.evening,
     true, 
     TIMEZONE
 );
-console.log(STARTED_MESSAGE, CRON_CONFIG.evening);
+console.log(STARTED_MESSAGE, CRON_CONFIG.evening, TIMEZONE);

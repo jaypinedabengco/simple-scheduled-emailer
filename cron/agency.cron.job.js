@@ -16,4 +16,4 @@ new cron.CronJob(CRON_CONFIG.every_friday,
     true, 
     TIMEZONE
 );
-console.log(STARTED_MESSAGE, CRON_CONFIG.every_friday);
+console.log(STARTED_MESSAGE, CRON_CONFIG.every_friday, TIMEZONE);

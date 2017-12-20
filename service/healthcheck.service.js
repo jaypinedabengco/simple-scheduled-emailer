@@ -12,19 +12,12 @@ exports.getHealthCheck = getHealthCheck;
 */
 function getHealthCheck() {
 
-    var healthcheck = {
-        db : {
-            host: config.db.host,
-            name: config.db.database,
-            status : "0"
-        }, 
-        cron : config.cron, 
-        email : {
-            host : config.email.ehost, 
-            uname : config.email.euser
-        },
-        email_to : config.email.student_app_email
-    }
+    var healthcheck = JSON.parse(JSON.stringify(config));
+
+    //remove sensitive data
+    delete healthcheck.db.password;
+    delete healthcheck.email.euser;
+    delete healthcheck.email.epass;
 
     return healthcheck_dao
         .isDBWorking()
@@ -36,6 +29,6 @@ function getHealthCheck() {
         ).catch((err) => {
             healthcheck.error = err;
             return healthcheck;
-        })
+        });
 
 }

@@ -20,6 +20,11 @@ module.exports = {
             cc: process.env.CSV_REPORT_EMAILER_STUDENT_APP_CC,
             bcc: process.env.CSV_REPORT_EMAILER_STUDENT_APP_BCC
         }, 
+        student_full_details_email: {
+            to: process.env.CSV_REPORT_EMAILER_STUDENT_FULL_DETAILS_TO,
+            cc: process.env.CSV_REPORT_EMAILER_STUDENT_FULL_DETAILS_CC,
+            bcc: process.env.CSV_REPORT_EMAILER_STUDENT_FULL_DETAILS_BCC
+        },         
         approved_agencies_email: {
             to: process.env.CSV_REPORT_EMAILER_APPROVED_AGENCY_TO,
             cc: process.env.CSV_REPORT_EMAILER_APPROVED_AGENCY_CC,
@@ -30,7 +35,7 @@ module.exports = {
         student_app_email : {
             timezone: 'Australia/Brisbane',
             morning: '00 00 08 * * *',  //8 AM
-            afternoon: '00 00 16 * * *',  //3 PM
+            afternoon: '00 00 15 * * *',  //3 PM
             evening: '00 00 21 * * *',  //9 PM
             fetch_in_hours: {
                 morning: 11, 
@@ -38,11 +43,13 @@ module.exports = {
                 evening: 6
             }
         }, 
+        student_full_details_email : {
+            timezone: 'Australia/Sydney',
+            afternoon: '00 00 17 * * *',  //3 PM
+        },         
         approved_agencies_email : {
             timezone: 'Australia/Brisbane',
             every_friday : '00 00 17 * * 5' //every friday, 5pm
         }
     }
-
-
-}
+};
