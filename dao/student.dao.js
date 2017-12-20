@@ -247,7 +247,6 @@ function getAllStudentsDetailedInformation(){
                         GROUP BY student_id
                     ) student_grouped_files_passport_address ON student.id = student_grouped_files_passport_address.student_id AND student_grouped_files_passport_address.student_file_type_id = 2
                     
-                    
                     LEFT JOIN (
                         SELECT 
                             student_id, 
@@ -257,7 +256,6 @@ function getAllStudentsDetailedInformation(){
                         WHERE deleted is false 
                         GROUP BY student_id
                     ) student_grouped_files_others ON student.id = student_grouped_files_others.student_id AND student_grouped_files_others.student_file_type_id =  3     
-                    
                     
                     LEFT JOIN (
                         SELECT 
@@ -269,7 +267,6 @@ function getAllStudentsDetailedInformation(){
                         GROUP BY student_id
                     ) student_grouped_files_academic_records ON student.id = student_grouped_files_academic_records.student_id AND student_grouped_files_academic_records.student_file_type_id = 4   
                     
-                    
                     LEFT JOIN (
                         SELECT 
                             student_id, 
@@ -280,7 +277,6 @@ function getAllStudentsDetailedInformation(){
                         GROUP BY student_id
                     ) student_grouped_files_agent_declaration ON student.id = student_grouped_files_agent_declaration.student_id AND student_grouped_files_agent_declaration.student_file_type_id = 5
                     
-                    
                     LEFT JOIN (
                         SELECT 
                             student_id, 
@@ -290,7 +286,6 @@ function getAllStudentsDetailedInformation(){
                         WHERE deleted is false 
                         GROUP BY student_id
                     ) student_grouped_files_english_language_test_results ON student.id = student_grouped_files_english_language_test_results.student_id AND student_grouped_files_english_language_test_results.student_file_type_id = 6
-                    
                     
                     LEFT JOIN (
                         SELECT 
