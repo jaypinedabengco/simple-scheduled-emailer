@@ -81,8 +81,7 @@ function sendEmailWithCSVAttachmentForStudentApplications(student_info) {
         var csv_file_name = 'student-applications-' + date_process + '.csv';
         var csv_mime_type = 'text/csv';
 
-
-        convertDBResultToCSV(fields, student_info)
+        convertDBResultToDynamicCSV(student_info)
             .then(
             (csv_raw_data) => {
 
@@ -96,7 +95,7 @@ function sendEmailWithCSVAttachmentForStudentApplications(student_info) {
                     has_csv_attachment: student_info.length > 0,
                     csv_filename: csv_file_name,
                     csv_content: csv_raw_data
-                }
+                };
 
                 //build email to send
                 email_content.html = '<div>';

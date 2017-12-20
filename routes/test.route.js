@@ -17,10 +17,12 @@ router.get('/approved-agencies', sendApprovedAgenciesEmail);
  * @param {*} next 
  */
 function sendStudentLatestApplicationEmail(req, res, next) {
+
+    let per_hr = 10000;
     email_service
-        .sendStudentLatestApplicationViaEmail(1)
+        .sendStudentLatestApplicationViaEmail(per_hr)
         .then(
-            (result) => res.status(200).json(result), 
+            (csv_raw_data) => sendAsCSV(res, `students-latest-application-within-${per_hr}-hr`, csv_raw_data), 
             (err) => {
                 console.log('error', err);
                 res.send(err);
@@ -38,7 +40,7 @@ function sendAllStudentsLatestDetailsViaEmail(req, res, next){
     email_service
         .sendAllStudentsLatestDetailsViaEmail()
         .then(
-            (result) => res.status(200).json(result), 
+            (csv_raw_data) => sendAsCSV(res, 'student-report', csv_raw_data), 
             (err) => {
                 console.log('error', err);
                 res.send(err);
@@ -56,12 +58,24 @@ function sendApprovedAgenciesEmail(req, res, next){
     email_service
         .sendLatestApprovedAgenciesViaEmail()
         .then(
-            (result) => res.status(200).json(result), 
+            (csv_raw_data) => sendAsCSV(res, 'approved-agencies', csv_raw_data), 
             (err) => {
                 console.log('error', err);
                 res.send(err);
             }
         );
+}
+
+/**
+ * 
+ * @param {*} res 
+ * @param {*} csv_data 
+ */
+function sendAsCSV(res, prefix_name, csv_data){
+    let csv_file_name = `${prefix_name}-test-${new Date().getTime()}.csv`;
+    res.setHeader('Content-disposition', `attachment; filename="${csv_file_name}"`);
+    res.set('Content-Type', 'text/csv');
+    res.status(200).send(csv_data);
 }
 
 module.exports = router;
