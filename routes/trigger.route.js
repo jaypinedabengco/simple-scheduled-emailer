@@ -18,7 +18,7 @@ router.get('/approved-agencies', sendApprovedAgenciesEmail);
  * @param {*} next 
  */
 function sendStudentLatestApplicationEmail(req, res, next) {
-    let per_hr = 1000000;
+    let per_hr = 0;
     email_service
         .sendStudentLatestApplicationViaEmail(per_hr)
         .then(
