@@ -1,1 +1,1 @@
-docker logs -f application_csv_emailer
+docker logs -f application_csv_emailer_2
