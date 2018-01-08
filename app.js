@@ -28,6 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/test', require('./routes/test.route'));
 app.use('/api', require('./routes/healthcheck.route'));
+app.use('/api/trigger', require('./routes/trigger.route'));
 
 //add cronjob
 require('./cron/student-application.cron.job');
