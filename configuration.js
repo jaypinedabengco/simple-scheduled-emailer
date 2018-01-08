@@ -20,18 +20,21 @@ module.exports = {
         quitwait: "false",
         efrom: "<noreply@globalstudypartners.com>",
         student_app_email: {
-            to: process.env.CSV_REPORT_EMAILER_STUDENT_APP_TO,
-            cc: process.env.CSV_REPORT_EMAILER_STUDENT_APP_CC,
+            to: "jay.bengco@tooltwist.com",
+            // to: process.env.CSV_REPORT_EMAILER_STUDENT_APP_TO,
+            // cc: process.env.CSV_REPORT_EMAILER_STUDENT_APP_CC,
             bcc: process.env.CSV_REPORT_EMAILER_STUDENT_APP_BCC
         }, 
         student_full_details_email: {
-            to: process.env.CSV_REPORT_EMAILER_STUDENT_FULL_DETAILS_TO,
-            cc: process.env.CSV_REPORT_EMAILER_STUDENT_FULL_DETAILS_CC,
+            to: "jay.bengco@tooltwist.com",
+            // to: process.env.CSV_REPORT_EMAILER_STUDENT_FULL_DETAILS_TO,
+            // cc: process.env.CSV_REPORT_EMAILER_STUDENT_FULL_DETAILS_CC,
             bcc: process.env.CSV_REPORT_EMAILER_STUDENT_FULL_DETAILS_BCC
         },         
         approved_agencies_email: {
-            to: process.env.CSV_REPORT_EMAILER_APPROVED_AGENCY_TO,
-            cc: process.env.CSV_REPORT_EMAILER_APPROVED_AGENCY_CC,
+            to: "jay.bengco@tooltwist.com",
+            // to: process.env.CSV_REPORT_EMAILER_APPROVED_AGENCY_TO,
+            // cc: process.env.CSV_REPORT_EMAILER_APPROVED_AGENCY_CC,
             bcc: process.env.CSV_REPORT_EMAILER_APPROVED_AGENCY_BCC            
         }
     },
