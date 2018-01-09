@@ -1,7 +1,7 @@
 module.exports = {
     build: {
-        version:1.0,
-        date:20171220
+        version:1.1,
+        date:20180109
     },
     db: {
         host: process.env.DB_HOST,
@@ -33,6 +33,11 @@ module.exports = {
             to: process.env.CSV_REPORT_EMAILER_APPROVED_AGENCY_TO,
             cc: process.env.CSV_REPORT_EMAILER_APPROVED_AGENCY_CC,
             bcc: process.env.CSV_REPORT_EMAILER_APPROVED_AGENCY_BCC            
+        },
+        all_agencies_email: {
+            to: process.env.CSV_REPORT_EMAILER_ALL_AGENCY_TO,
+            cc: process.env.CSV_REPORT_EMAILER_ALL_AGENCY_CC,
+            bcc: process.env.CSV_REPORT_EMAILER_ALL_AGENCY_BCC            
         }
     },
     cron: {
@@ -54,6 +59,9 @@ module.exports = {
         approved_agencies_email : {
             timezone: 'Australia/Brisbane',
             every_friday : '00 00 17 * * 5' //every friday, 5pm
+        },
+        all_agencies : {
+            timezone: 'Australia/Brisbane'
         }
     }
 };

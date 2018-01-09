@@ -26,6 +26,7 @@ var transporter = nodemailer.createTransport(smtpTransport({
 exports.sendStudentLatestApplicationViaEmail = sendStudentLatestApplicationViaEmail;
 exports.sendAllStudentsLatestDetailsViaEmail = sendAllStudentsLatestDetailsViaEmail;
 exports.sendLatestApprovedAgenciesViaEmail = sendLatestApprovedAgenciesViaEmail;
+exports.sendAllAgenciesViaEmail = sendAllAgenciesViaEmail;
 
 ///
 
@@ -68,6 +69,18 @@ function sendLatestApprovedAgenciesViaEmail() {
     });
 }
 
+/**
+ * 
+ */
+function sendAllAgenciesViaEmail() {
+    return new Promise((resolve, reject) => {
+        agency_dao
+            .getAllAgencies()
+            .then(sendEmailWithCSVAttachmentForAllAgencies)
+            .then(resolve, reject)
+            .catch(reject);
+    });    
+}
 
 /**
  * 
@@ -205,7 +218,7 @@ function sendEmailWithCSVAttachmentForApprovedAgencies(agencies) {
                     has_csv_attachment: agencies.length > 0,
                     csv_filename: csv_file_name,
                     csv_content: csv_raw_data
-                }
+                };
 
                 //build email to send
                 email_content.html = '<div>';
@@ -229,6 +242,48 @@ function sendEmailWithCSVAttachmentForApprovedAgencies(agencies) {
 
             }
             )
+            .then(resolve, reject)
+            .catch(reject);
+    });
+}
+
+function sendEmailWithCSVAttachmentForAllAgencies(data) {
+    return new Promise((resolve, reject) => {
+
+        var email_timezone = config.cron.all_agencies.timezone;
+        var date_process = (moment().tz(email_timezone).format('DMMMYYYY-hh:mmA'));
+        var csv_file_name = 'master-agencies-list-' + date_process + '.csv';
+        var csv_mime_type = 'text/csv';
+        var email_config = config.email.all_agencies_email;
+
+        convertDBResultToDynamicCSV(data)
+            .then(
+            (csv_raw_data) => {
+                let email_content = {
+                    html: '',
+                    subject: '[System Generated] Master Agencies CSV ' + date_process,
+                    from: config.email.efrom,
+                    to: email_config.to,
+                    cc: email_config.cc,
+                    bcc: email_config.bcc,
+                    csv_filename: csv_file_name,
+                    has_csv_attachment: !!data.length,
+                    csv_content: csv_raw_data
+                };
+
+                //build email to send
+                email_content.html = `
+                    <div>
+                        <div>[SYSTEM GENERATED]</div>
+                        <br/><br/>
+                        <div>
+                            <b>No. of Entries : ${ data.length }<b/>
+                        </div>
+                    </div>
+                `;
+                return sendEmail(email_content);
+
+            })
             .then(resolve, reject)
             .catch(reject);
     });

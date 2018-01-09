@@ -8,6 +8,7 @@ var email_service = require('./../service/email.service');
 router.get('/all/student-latest-application', sendStudentLatestApplicationEmail);
 router.get('/student-full-details', sendAllStudentsLatestDetailsViaEmail);
 router.get('/approved-agencies', sendApprovedAgenciesEmail);
+router.get('/all-agencies', sendAllAgenciesViaEmail);
 
 //////
 
@@ -64,6 +65,24 @@ function sendApprovedAgenciesEmail(req, res, next){
                 res.send(err);
             }
         );
+}
+
+/**
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
+function sendAllAgenciesViaEmail(req, res, next){
+    email_service
+        .sendAllAgenciesViaEmail()
+        .then(
+            (csv_raw_data) => sendAsCSV(res, 'all-agencies', csv_raw_data), 
+            (err) => {
+                console.log('error', err);
+                res.send(err);
+            }
+        );    
 }
 
 /**
