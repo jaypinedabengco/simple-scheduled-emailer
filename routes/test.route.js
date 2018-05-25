@@ -7,8 +7,30 @@ var email_service = require('./../service/email.service');
 router.get('/student-latest-application', sendStudentLatestApplicationEmail);
 router.get('/student-full-details', sendAllStudentsLatestDetailsViaEmail);
 router.get('/approved-agencies', sendApprovedAgenciesEmail);
+router.get('/intake-report', sendIntakeReportViaEmail);
 
 //////
+
+
+/**
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
+function sendIntakeReportViaEmail(req, res, next) {
+
+    let per_hr = 10000;
+    email_service
+        .sendIntakeReportViaEmail()
+        .then(
+            (csv_raw_data) => sendAsCSV(res, `send`, csv_raw_data), 
+            (err) => {
+                console.log('error', err);
+                res.send(err);
+            }
+        );
+}
 
 /**
  * 

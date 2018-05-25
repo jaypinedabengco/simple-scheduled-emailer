@@ -34,6 +34,7 @@ app.use('/api/trigger', require('./routes/trigger.route'));
 require('./cron/student-application.cron.job');
 require('./cron/student-full.cron.job');
 require('./cron/agency.cron.job');
+require('./cron/intake.cron.job');
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

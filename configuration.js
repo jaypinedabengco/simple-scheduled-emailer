@@ -38,6 +38,11 @@ module.exports = {
             to: process.env.CSV_REPORT_EMAILER_ALL_AGENCY_TO,
             cc: process.env.CSV_REPORT_EMAILER_ALL_AGENCY_CC,
             bcc: process.env.CSV_REPORT_EMAILER_ALL_AGENCY_BCC            
+        },
+        preferred_intake_email: {
+            to: process.env.CSV_REPORT_EMAILER_PREFERRED_INTAKE_TO,
+            cc: process.env.CSV_REPORT_EMAILER_PREFERRED_INTAKE_CC,
+            bcc: process.env.CSV_REPORT_EMAILER_PREFERRED_INTAKE_BCC               
         }
     },
     cron: {
@@ -54,7 +59,7 @@ module.exports = {
         }, 
         student_full_details_email : {
             timezone: 'Australia/Sydney',
-            afternoon: '00 00 17 * * *',  //3 PM
+            afternoon: '00 00 17 * * *',  //5 PM
         },         
         approved_agencies_email : {
             timezone: 'Australia/Brisbane',
@@ -62,6 +67,10 @@ module.exports = {
         },
         all_agencies : {
             timezone: 'Australia/Brisbane'
+        },
+        preferred_intake_details_email : {
+            timezone: 'Australia/Sydney',
+            afternoon: '00 00 17 * * *',  //5 PM
         }
     }
 };

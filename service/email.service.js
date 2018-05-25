@@ -27,6 +27,7 @@ exports.sendStudentLatestApplicationViaEmail = sendStudentLatestApplicationViaEm
 exports.sendAllStudentsLatestDetailsViaEmail = sendAllStudentsLatestDetailsViaEmail;
 exports.sendLatestApprovedAgenciesViaEmail = sendLatestApprovedAgenciesViaEmail;
 exports.sendAllAgenciesViaEmail = sendAllAgenciesViaEmail;
+exports.sendIntakeReportViaEmail = sendIntakeReportViaEmail;
 
 ///
 
@@ -77,6 +78,19 @@ function sendAllAgenciesViaEmail() {
         agency_dao
             .getAllAgencies()
             .then(sendEmailWithCSVAttachmentForAllAgencies)
+            .then(resolve, reject)
+            .catch(reject);
+    });    
+}
+
+/**
+ * 
+ */
+function sendIntakeReportViaEmail(){
+    return new Promise((resolve, reject) => {
+        student_dao
+            .getAllIntakesReport()
+            .then(sendEmailWithCSVAttachmentForIntakeDetails)
             .then(resolve, reject)
             .catch(reject);
     });    
@@ -182,6 +196,53 @@ function sendEmailWithCSVAttachmentForStudentFullDetails(data) {
             .catch(reject);
     });
 }
+
+/**
+ * 
+ * @param {*} data 
+ */
+function sendEmailWithCSVAttachmentForIntakeDetails(data) {
+    return new Promise((resolve, reject) => {
+
+        var email_timezone = config.cron.preferred_intake_details_email.timezone;
+        var date_process = (moment().tz(email_timezone).format('DMMMYYYY-hh:mmA'));
+        var csv_file_name = 'preferred-intake-' + date_process + '.csv';
+        var csv_mime_type = 'text/csv';
+        var email_config = config.email.preferred_intake_email;
+
+        convertDBResultToDynamicCSV(data)
+            .then(
+            (csv_raw_data) => {
+                let email_content = {
+                    html: '',
+                    subject: '[System Generated] Preferred Intake CV  ' + date_process,
+                    from: config.email.efrom,
+                    to: email_config.to,
+                    cc: email_config.cc,
+                    bcc: email_config.bcc,
+                    csv_filename: csv_file_name,
+                    has_csv_attachment: !!data.length,
+                    csv_content: csv_raw_data
+                };
+
+                //build email to send
+                email_content.html = `
+                    <div>
+                        <div>[SYSTEM GENERATED]</div>
+                        <br/><br/>
+                        <div>
+                            <b>No. of Entries : ${ data.length }<b/>
+                        </div>
+                    </div>
+                `;
+                return sendEmail(email_content);
+
+            })
+            .then(resolve, reject)
+            .catch(reject);
+    });
+}
+
 
 /**
  * 

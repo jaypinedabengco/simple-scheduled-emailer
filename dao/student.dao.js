@@ -3,14 +3,15 @@ var database = require('./../provider/mysql.connection');
 exports.getLatestStudentCourseApplication = getLatestStudentCourseApplication;
 exports.getLatestStudentsWithOrWithoutCourseApplication = getLatestStudentsWithOrWithoutCourseApplication;
 exports.getAllStudentsDetailedInformation = getAllStudentsDetailedInformation;
+exports.getAllIntakesReport = getAllIntakesReport;
 
 ////
 
-function getLatestStudentsWithOrWithoutCourseApplication(hours){
+function getLatestStudentsWithOrWithoutCourseApplication(hours) {
     return new Promise((resolve, reject) => {
-        
+
         database.getConnection((err, connection) => {
-            if ( err ){
+            if (err) {
                 return reject(err);
             }
 
@@ -42,7 +43,7 @@ function getLatestStudentsWithOrWithoutCourseApplication(hours){
                     AND ( student_auth.created_from is NULL || student_auth.created_from IN (1,2) )
             `;
 
-            if ( hours > 0 ){
+            if (hours > 0) {
                 sql += `
                     AND ( 
                         course_application.date_created > timestampadd(day, -?, now()) 
@@ -54,9 +55,9 @@ function getLatestStudentsWithOrWithoutCourseApplication(hours){
             }
 
             sql += ' ORDER BY course_application.date_created, student.date_created DESC';
-            
+
             return connection.query(sql, params, (err, resultSet) => {
-                if ( err ){
+                if (err) {
                     connection.release();
                     return reject(err);
                 }
@@ -65,7 +66,7 @@ function getLatestStudentsWithOrWithoutCourseApplication(hours){
             });
 
         });
-        
+
     });
 }
 
@@ -73,42 +74,42 @@ function getLatestStudentsWithOrWithoutCourseApplication(hours){
  * If hours not provided, then return all
  * @param {*} hours 
  */
-function getLatestStudentCourseApplication(hours){
+function getLatestStudentCourseApplication(hours) {
     return new Promise((resolve, reject) => {
 
         database.getConnection((err, connection) => {
-            if ( err ){
+            if (err) {
                 return reject(err);
             }
 
             var params = [];
 
             var sql = 'SELECT DISTINCT ';
-                sql += '    CONCAT(student.firstname, " ", student.lastname) Student_Name, ';
-                sql += '    country.name Student_Country, ';
-                sql += '    course.course_name Applied_Course_Name, ';
-                sql += '    provider.institution_trading_name Applied_Institution_Name, ';
-                sql += '    course_application.date_created Date_of_Application, ';
-                sql += '    agency.name agency_name, ';
-                sql += '    CONCAT(agent.firstname, " ", agent.lastname) Agent_Name';
+            sql += '    CONCAT(student.firstname, " ", student.lastname) Student_Name, ';
+            sql += '    country.name Student_Country, ';
+            sql += '    course.course_name Applied_Course_Name, ';
+            sql += '    provider.institution_trading_name Applied_Institution_Name, ';
+            sql += '    course_application.date_created Date_of_Application, ';
+            sql += '    agency.name agency_name, ';
+            sql += '    CONCAT(agent.firstname, " ", agent.lastname) Agent_Name';
 
-                sql += ' FROM course_application ';
-                sql += '    INNER JOIN user student ON course_application.student_id = student.id ';
-                sql += '    INNER JOIN user agent ON course_application.agent_id = agent.id ';
-                sql += '    INNER JOIN course ON course_application.course_id = course.course_id';
-                sql += '    INNER JOIN provider ON course.provider_id = provider.provider_id';
-                sql += '    INNER JOIN agency ON agent.agency_id = agency.id ';
-                sql += '    LEFT JOIN country ON student.country_id = country.id';
+            sql += ' FROM course_application ';
+            sql += '    INNER JOIN user student ON course_application.student_id = student.id ';
+            sql += '    INNER JOIN user agent ON course_application.agent_id = agent.id ';
+            sql += '    INNER JOIN course ON course_application.course_id = course.course_id';
+            sql += '    INNER JOIN provider ON course.provider_id = provider.provider_id';
+            sql += '    INNER JOIN agency ON agent.agency_id = agency.id ';
+            sql += '    LEFT JOIN country ON student.country_id = country.id';
 
-                if ( hours > 0 ){
-                    sql += ' WHERE course_application.date_created > timestampadd(hour, -?, now()) ';
-                    params.push(hours);
-                }
+            if (hours > 0) {
+                sql += ' WHERE course_application.date_created > timestampadd(hour, -?, now()) ';
+                params.push(hours);
+            }
 
-                sql += ' ORDER BY  course_application.date_created DESC';
-            
+            sql += ' ORDER BY  course_application.date_created DESC';
+
             connection.query(sql, params, (err, resultSet) => {
-                if ( err ){
+                if (err) {
                     connection.release();
                     return reject(err);
                 }
@@ -124,7 +125,7 @@ function getLatestStudentCourseApplication(hours){
 /**
  * 
  */
-function getAllStudentsDetailedInformation(){
+function getAllStudentsDetailedInformation() {
     return new Promise((resolve, reject) => {
         database.getConnection((err, connection) => {
             const sql = `
@@ -367,13 +368,60 @@ function getAllStudentsDetailedInformation(){
             `;
 
             connection.query(sql, [], (err, resultSet) => {
-                if ( err ){
+                if (err) {
                     connection.release();
                     return reject(err);
                 }
                 connection.release();
                 return resolve(resultSet);
-            });            
-        });            
+            });
+        });
+    });
+}
+
+/**
+ * 
+ * @param {*} connection 
+ */
+function getAllIntakesReport() {
+    return new Promise((resolve, reject) => {
+        database.getConnection((err, connection) => {
+            let sql = `
+                SELECT DISTINCT 
+                    student.firstname Student_First_Name, 
+                    student.lastname Student_Last_Name, 
+                    IFNULL(student_address_country.name, student_country.name) Student_Country, 
+                    course.course_name Course_Name, 
+                    course_application.preferred_intake Preferred_Intake_Date, 
+                    provider.provider_name Institution_Name, 
+                    course_application_status.name Application_Status, 
+                    counsellor.firstname Counsellor_First_Name, 
+                    counsellor.lastname Counsellor_Last_Name, 
+                    agency.name Agency
+                FROM course_application 
+                    INNER JOIN user student ON course_application.student_id = student.id 
+                    INNER JOIN course ON course_application.course_id = course.course_id 
+                    INNER JOIN provider ON course.provider_id = provider.provider_id 
+                    INNER JOIN student_agent ON student.id = student_agent.student_id 
+                    INNER JOIN user counsellor ON student_agent.agent_id = counsellor.id 
+                    INNER JOIN agency ON counsellor.agency_id = agency.id
+                    LEFT JOIN course_application_status ON course_application.course_application_status_id = course_application_status.id 
+                    LEFT JOIN country student_country ON student.country_id = student_country.id 
+                    LEFT JOIN user_address student_address ON student.id = student_address.user_id 
+                    LEFT JOIN country student_address_country  ON student_address.country_id = student_address_country.id 
+                    LEFT JOIN user_auth ON student.id = user_auth.user_id 
+                WHERE 
+                    ( user_auth.created_from is NULL || user_auth.created_from IN (1, 2) )
+                ORDER BY course_application.preferred_intake DESC        
+                `;
+            connection.query(sql, [], (err, resultSet) => {
+                if (err) {
+                    connection.release();
+                    return reject(err);
+                }
+                connection.release();
+                return resolve(resultSet);
+            });
+        });
     });
 }
