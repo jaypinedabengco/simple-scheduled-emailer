@@ -28,7 +28,7 @@ exports.sendAllStudentsLatestDetailsViaEmail = sendAllStudentsLatestDetailsViaEm
 exports.sendLatestApprovedAgenciesViaEmail = sendLatestApprovedAgenciesViaEmail;
 exports.sendAllAgenciesViaEmail = sendAllAgenciesViaEmail;
 exports.sendIntakeReportViaEmail = sendIntakeReportViaEmail;
-exports.sendStudentLatestChangesApplicationEveryMondayViaEmail = sendStudentLatestChangesApplicationEveryMondayViaEmail;
+exports.sendStudentLatestChangesApplicationWeeklyPotentialInvoice = sendStudentLatestChangesApplicationWeeklyPotentialInvoice;
 
 ///
 
@@ -101,11 +101,11 @@ function sendIntakeReportViaEmail(){
  * 
  * @param {*} elapsed_hours 
  */
-function sendStudentLatestChangesApplicationEveryMondayViaEmail() {
+function sendStudentLatestChangesApplicationWeeklyPotentialInvoice() {
     return new Promise((resolve, reject) => {
         student_dao
-            .getStudentLatestChangesApplicationEverySevenPreviousDays()
-            .then(result => sendEmailWithCSVAttachmentForStudentLatestChangesApplicationEveryMonday(result))
+            .getStudentLatestChangesApplicationWeeklyPotentialInvoice()
+            .then(result => sendEmailWithCSVAttachmentForStudentLatestChangesApplicationWeeklyPotentialInvoice(result))
             .then(resolve, reject)
             .catch(reject);
     });
@@ -170,10 +170,10 @@ function sendEmailWithCSVAttachmentForStudentApplications(student_info) {
  * 
  * @param {*} student_info 
  */
-function sendEmailWithCSVAttachmentForStudentLatestChangesApplicationEveryMonday(student_info) {
+function sendEmailWithCSVAttachmentForStudentLatestChangesApplicationWeeklyPotentialInvoice(student_info) {
     return new Promise((resolve, reject) => {
-        console.log('student_info', student_info)
-        var email_timezone = config.cron.student_app_email.timezone_syd;
+
+        var email_timezone = config.cron.weekly_potential_invoice.timezone;
         var date_process = (moment().tz(email_timezone).format('DD MMM YYYY hh:mmA'));
         var csv_file_name = `[System Generated] Weekly Potential Invoicing CSV ${date_process} Syd.csv`;
         var csv_mime_type = 'text/csv';

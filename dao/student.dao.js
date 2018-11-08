@@ -4,7 +4,7 @@ exports.getLatestStudentCourseApplication = getLatestStudentCourseApplication;
 exports.getLatestStudentsWithOrWithoutCourseApplication = getLatestStudentsWithOrWithoutCourseApplication;
 exports.getAllStudentsDetailedInformation = getAllStudentsDetailedInformation;
 exports.getAllIntakesReport = getAllIntakesReport;
-exports.getStudentLatestChangesApplicationEverySevenPreviousDays = getStudentLatestChangesApplicationEverySevenPreviousDays;
+exports.getStudentLatestChangesApplicationWeeklyPotentialInvoice = getStudentLatestChangesApplicationWeeklyPotentialInvoice;
 
 ////
 
@@ -429,7 +429,7 @@ function getAllIntakesReport() {
 
 
 
-function getStudentLatestChangesApplicationEverySevenPreviousDays() {
+function getStudentLatestChangesApplicationWeeklyPotentialInvoice() {
     return new Promise((resolve, reject) => {
         database.getConnection((err, connection) => {
             let sql = `
@@ -480,7 +480,7 @@ function getStudentLatestChangesApplicationEverySevenPreviousDays() {
                         LEFT JOIN provider ON provider.provider_id = course.provider_id
                         LEFT JOIN course_application_status ON course_application_status.id = current_course_status.course_application_status_id
                         WHERE current_course_status.update_date > DATE( CURDATE() ) - INTERVAL 7 DAY
-                        -- AND current_course_status.update_date < CURDATE()
+                        AND current_course_status.update_date < CURDATE()
                         AND current_course_status.course_application_status_id IN (6, 7, 8, 12)
                             -- Confirmation of Enrolment Issued 6 
                             -- Visa has been Applied For 7

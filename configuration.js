@@ -53,11 +53,9 @@ module.exports = {
     cron: {
         student_app_email : {
             timezone: 'Australia/Brisbane',
-            timezone_syd: 'Australia/Sydney',
             morning: '00 00 08 * * *',  //8 AM
             afternoon: '00 00 15 * * *',  //3 PM
             evening: '00 00 21 * * *',  //9 PM
-            morning_monday: '00 00 08 * * 1',  //8 AM Monday
             fetch_in_hours: {
                 morning: 11, 
                 afternoon: 7, 
@@ -78,6 +76,10 @@ module.exports = {
         preferred_intake_details_email : {
             timezone: 'Australia/Sydney',
             afternoon: '00 00 17 * * *',  //5 PM
+        },
+        weekly_potential_invoice :{
+            timezone: 'Australia/Sydney',
+            morning: '00 00 08 * * 1'  //8 AM Monday
         }
     }
 };

@@ -7,7 +7,7 @@ const student_dao = require('./../dao/student.dao')
 describe('Trigger sendStudentLatestChangesApplicationEveryMondayViaEmail manually', () => {
 
     it(`trigger sendStudentLatestChangesApplicationEveryMondayViaEmail and should not encounter any error'`, async () => {
-        const result = await emailservice.sendStudentLatestChangesApplicationEveryMondayViaEmail()
+        const result = await emailservice.sendStudentLatestChangesApplicationWeeklyPotentialInvoice()
         console.log(result)
     })
 
