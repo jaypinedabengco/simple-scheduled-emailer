@@ -1,7 +1,7 @@
 module.exports = {
     build: {
-        version:1.4,
-        date:20180704
+        version:1.5,
+        date:20181108
     },
     db: {
         host: process.env.DB_HOST,
