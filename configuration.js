@@ -43,14 +43,22 @@ module.exports = {
             to: process.env.CSV_REPORT_EMAILER_PREFERRED_INTAKE_TO,
             cc: process.env.CSV_REPORT_EMAILER_PREFERRED_INTAKE_CC,
             bcc: process.env.CSV_REPORT_EMAILER_PREFERRED_INTAKE_BCC               
+        },
+        weekly_potential_invoicing : {
+            to: process.env.CSV_REPORT_EMAILER_WEEKLY_POTENTIAL_INVOICING_TO,
+            cc: process.env.CSV_REPORT_EMAILER_WEEKLY_POTENTIAL_INVOICING_CC,
+            bcc: process.env.CSV_REPORT_EMAILER_WEEKLY_POTENTIAL_INVOICING_BCC 
         }
     },
     cron: {
         student_app_email : {
             timezone: 'Australia/Brisbane',
+            timezone_syd: 'Australia/Sydney',
             morning: '00 00 08 * * *',  //8 AM
             afternoon: '00 00 15 * * *',  //3 PM
             evening: '00 00 21 * * *',  //9 PM
+            // morning_monday: '00 00 08 * * 1',  //8 AM Monday
+            morning_monday : '10 * * * * *',
             fetch_in_hours: {
                 morning: 11, 
                 afternoon: 7, 

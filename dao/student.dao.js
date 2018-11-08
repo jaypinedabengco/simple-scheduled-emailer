@@ -4,6 +4,7 @@ exports.getLatestStudentCourseApplication = getLatestStudentCourseApplication;
 exports.getLatestStudentsWithOrWithoutCourseApplication = getLatestStudentsWithOrWithoutCourseApplication;
 exports.getAllStudentsDetailedInformation = getAllStudentsDetailedInformation;
 exports.getAllIntakesReport = getAllIntakesReport;
+exports.getStudentLatestChangesApplicationEverySevenPreviousDays = getStudentLatestChangesApplicationEverySevenPreviousDays;
 
 ////
 
@@ -55,7 +56,6 @@ function getLatestStudentsWithOrWithoutCourseApplication(hours) {
             }
 
             sql += ' ORDER BY course_application.date_created, student.date_created DESC';
-
             return connection.query(sql, params, (err, resultSet) => {
                 if (err) {
                     connection.release();
@@ -422,6 +422,82 @@ function getAllIntakesReport() {
                 connection.release();
                 return resolve(resultSet);
             });
+        });
+    });
+}
+
+
+
+function getStudentLatestChangesApplicationEverySevenPreviousDays() {
+    return new Promise((resolve, reject) => {
+        database.getConnection((err, connection) => {
+            let sql = `
+                SELECT
+                    student_first_name,
+                    student_last_name,
+                    student_country,
+                    institution,
+                    course,
+                    preferred_intake_date,
+                    previous_application_status,
+                    current_application_status,
+                    date_changed_to_current_status,
+                    agency_name,
+                    counsellor_name
+                    FROM  (
+                        SELECT  DISTINCT
+                            student.firstname AS student_first_name,
+                            student.lastname AS student_last_name,
+                            country.name AS student_country,
+                            provider.provider_name AS institution,
+                            course.course_name AS course,
+                            DATE_FORMAT(course_application.preferred_intake, "%M %d %Y")AS preferred_intake_date,
+                
+                            (
+                                SELECT  DISTINCT
+                                    course_application_status.label AS current_application_status
+                                FROM course_application_history
+                                LEFT JOIN course_application_status ON course_application_status.id = course_application_history.course_application_status_id
+                                WHERE course_application_history.course_application_id = current_course_status.course_application_id
+                                GROUP BY current_course_status.course_application_id
+                                AND update_date < NOW()
+                            ) AS previous_application_status,
+                
+                            course_application_status.label AS current_application_status,
+                            DATE_FORMAT(current_course_status.update_date, "%M %d %Y") AS date_changed_to_current_status,
+                            agency.name AS agency_name,
+                            CONCAT(counsellor.firstname, ' ', counsellor.lastname )AS counsellor_name,
+                            current_course_status.update_date AS update_date,
+                            current_course_status.course_application_id
+                        FROM course_application_history AS current_course_status
+                        LEFT JOIN course_application ON current_course_status.course_application_id = course_application.id
+                        LEFT JOIN user AS student ON course_application.student_id = student.id
+                        LEFT JOIN user AS counsellor ON course_application.agent_id = counsellor.id
+                        LEFT JOIN country ON country.id = student.country_id
+                        LEFT JOIN agency ON agency.id = counsellor.agency_id
+                        LEFT JOIN course ON course.course_id = course_application.course_id
+                        LEFT JOIN provider ON provider.provider_id = course.provider_id
+                        LEFT JOIN course_application_status ON course_application_status.id = current_course_status.course_application_status_id
+                        WHERE current_course_status.update_date > DATE( CURDATE() ) - INTERVAL 7 DAY
+                        -- AND current_course_status.update_date < CURDATE()
+                        AND current_course_status.course_application_status_id IN (6, 7, 8, 12)
+                            -- Confirmation of Enrolment Issued 6 
+                            -- Visa has been Applied For 7
+                            -- Visa has been Issued 8
+                            -- Study Commenced 12
+                        ORDER BY update_date DESC
+                ) student_info
+                GROUP BY student_info.course_application_id;
+            `;
+            return connection.query(sql, [], (err, resultSet) => {
+                if (err) {
+                    connection.release();
+                    return reject(err);
+                }
+                connection.release();
+                return resolve(resultSet);
+            });
+
         });
     });
 }

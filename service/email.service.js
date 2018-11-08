@@ -9,7 +9,7 @@ var student_dao = require('./../dao/student.dao'),
 
 ///
 
-const CSV_FILE_LOCATION = __basedir + '/created-csv-files/';
+// const CSV_FILE_LOCATION = __basedir + '/created-csv-files/';
 
 ///
 
@@ -28,6 +28,7 @@ exports.sendAllStudentsLatestDetailsViaEmail = sendAllStudentsLatestDetailsViaEm
 exports.sendLatestApprovedAgenciesViaEmail = sendLatestApprovedAgenciesViaEmail;
 exports.sendAllAgenciesViaEmail = sendAllAgenciesViaEmail;
 exports.sendIntakeReportViaEmail = sendIntakeReportViaEmail;
+exports.sendStudentLatestChangesApplicationEveryMondayViaEmail = sendStudentLatestChangesApplicationEveryMondayViaEmail;
 
 ///
 
@@ -98,6 +99,20 @@ function sendIntakeReportViaEmail(){
 
 /**
  * 
+ * @param {*} elapsed_hours 
+ */
+function sendStudentLatestChangesApplicationEveryMondayViaEmail() {
+    return new Promise((resolve, reject) => {
+        student_dao
+            .getStudentLatestChangesApplicationEverySevenPreviousDays()
+            .then(result => sendEmailWithCSVAttachmentForStudentLatestChangesApplicationEveryMonday(result))
+            .then(resolve, reject)
+            .catch(reject);
+    });
+}
+
+/**
+ * 
  * @param {*} student_info 
  */
 function sendEmailWithCSVAttachmentForStudentApplications(student_info) {
@@ -151,6 +166,71 @@ function sendEmailWithCSVAttachmentForStudentApplications(student_info) {
     });
 }
 
+/**
+ * 
+ * @param {*} student_info 
+ */
+function sendEmailWithCSVAttachmentForStudentLatestChangesApplicationEveryMonday(student_info) {
+    return new Promise((resolve, reject) => {
+        console.log('student_info', student_info)
+        var email_timezone = config.cron.student_app_email.timezone_syd;
+        var date_process = `${(moment().tz(email_timezone).format('DD MMM YYYY'))} 8:00AM`;
+        var csv_file_name = `[System Generated] Weekly Potential Invoicing CSV ${date_process} Syd.csv`;
+        var csv_mime_type = 'text/csv';
+
+
+        // let student_info = [
+        //     {
+        //         firsname: 'test FN',
+        //         lastname: 'test LN',
+        //         counsellor: 'test counsellor'
+        //     }
+        // ]
+
+        convertDBResultToDynamicCSV(student_info)
+            .then(
+            (csv_raw_data) => {
+                let email_content = {
+                    html: '',
+                    subject: `[System Generated] Weekly Potential Invoicing ${date_process} Syd` ,
+                    from: config.email.efrom,
+                    to: config.email.weekly_potential_invoicing.to,
+                    cc: config.email.weekly_potential_invoicing.cc,
+                    bcc: config.email.weekly_potential_invoicing.bcc,
+                    has_csv_attachment: student_info.length > 0,
+                    csv_filename: csv_file_name,
+                    csv_content: csv_raw_data
+                };
+
+                //build email to send
+                email_content.html = `
+                    <div>
+                        <div>[SYSTEM GENERATED]</div>
+                        <br/><br/>
+                        <div>
+                        <b>Student Total : <b/>
+                        ${student_info.length}
+                        </div>
+                    </div>
+                    <br/><br/>
+                `;
+
+                //if has content, then attach
+                if (!email_content.has_csv_attachment) {
+                    email_content.html = `
+                        <div>
+                          <b> No New Student </b>
+                        </div>
+                    `;
+                }
+                return sendEmail(email_content);
+
+            }
+            )
+            .then(resolve, reject)
+            .catch(reject);
+    })
+}
 /**
  * 
  * @param {*} data 
@@ -407,6 +487,19 @@ function sendEmail(email_content) {
         });
 
         return resolve(csv_content);
+
+
+        // send mail with defined transport object
+        // transporter.sendMail(mail_options, (error, info) => {
+        //     console.log(info)
+        //     if (error) {
+        //         return reject();
+        //     }
+        //     console.log('FROM SENDEMAIL' , csv_content)
+        //     return resolve(csv_content);
+        // });
+
+        
 
     });
 }

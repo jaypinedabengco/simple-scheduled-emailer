@@ -39,3 +39,14 @@ new cron.CronJob(CRON_CONFIG.evening,
     TIMEZONE
 );
 console.log(STARTED_MESSAGE, CRON_CONFIG.evening, TIMEZONE);
+
+/**
+ * 
+ */
+new cron.CronJob(CRON_CONFIG.morning_monday, 
+    () => { email_service.sendStudentLatestChangesApplicationEveryMondayViaEmail(); }, 
+    () => {},
+    true, 
+    TIMEZONE
+);
+    console.log('new', STARTED_MESSAGE, CRON_CONFIG.morning_monday, CRON_CONFIG.timezone_syd);
