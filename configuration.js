@@ -57,8 +57,7 @@ module.exports = {
             morning: '00 00 08 * * *',  //8 AM
             afternoon: '00 00 15 * * *',  //3 PM
             evening: '00 00 21 * * *',  //9 PM
-            // morning_monday: '00 00 08 * * 1',  //8 AM Monday
-            morning_monday : '10 * * * * *',
+            morning_monday: '00 00 08 * * 1',  //8 AM Monday
             fetch_in_hours: {
                 morning: 11, 
                 afternoon: 7, 

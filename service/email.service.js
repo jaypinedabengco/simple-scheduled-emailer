@@ -174,7 +174,7 @@ function sendEmailWithCSVAttachmentForStudentLatestChangesApplicationEveryMonday
     return new Promise((resolve, reject) => {
         console.log('student_info', student_info)
         var email_timezone = config.cron.student_app_email.timezone_syd;
-        var date_process = `${(moment().tz(email_timezone).format('DD MMM YYYY'))} 8:00AM`;
+        var date_process = (moment().tz(email_timezone).format('DD MMM YYYY hh:mmA'));
         var csv_file_name = `[System Generated] Weekly Potential Invoicing CSV ${date_process} Syd.csv`;
         var csv_mime_type = 'text/csv';
 
