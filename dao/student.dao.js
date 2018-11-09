@@ -439,7 +439,7 @@ function getStudentLatestChangesApplicationWeeklyPotentialInvoice() {
                     student_country,
                     institution,
                     course,
-                    preferred_intake_date,
+                    expected_commencement_date,
                     previous_application_status,
                     current_application_status,
                     date_changed_to_current_status,
@@ -452,7 +452,7 @@ function getStudentLatestChangesApplicationWeeklyPotentialInvoice() {
                             country.name AS student_country,
                             provider.provider_name AS institution,
                             course.course_name AS course,
-                            DATE_FORMAT(course_application.preferred_intake, "%M %d %Y")AS preferred_intake_date,
+                            DATE_FORMAT(course_application.preferred_intake, "%M %d %Y")AS expected_commencement_date,
                 
                             (
                                 SELECT  DISTINCT
