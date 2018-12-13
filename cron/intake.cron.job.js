@@ -17,3 +17,14 @@ new cron.CronJob(CRON_CONFIG.afternoon,
     TIMEZONE
 );
 console.log(STARTED_MESSAGE, CRON_CONFIG.afternoon, TIMEZONE);
+
+/**
+ * 
+ */
+new cron.CronJob(CRON_CONFIG.morning_monday, 
+    () => { email_service.sendIntakeReportViaEmail(); },  //9AM Monday
+    () => {},
+    true, 
+    TIMEZONE
+);
+console.log(STARTED_MESSAGE, CRON_CONFIG.morning_monday, TIMEZONE);

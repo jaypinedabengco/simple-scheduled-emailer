@@ -76,6 +76,7 @@ module.exports = {
         preferred_intake_details_email : {
             timezone: 'Australia/Sydney',
             afternoon: '00 00 17 * * *',  //5 PM
+            morning_monday: '00 00 09 * * 1'  //8 AM Monday
         },
         weekly_potential_invoice :{
             timezone: 'Australia/Sydney',
