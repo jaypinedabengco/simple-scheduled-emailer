@@ -411,7 +411,7 @@ function getAllIntakesReport() {
                     LEFT JOIN country student_address_country  ON student_address.country_id = student_address_country.id 
                     LEFT JOIN user_auth ON student.id = user_auth.user_id 
                 WHERE 
-                    student.deleted IS FALSE && 
+                    student.deleted IS FALSE && course_application.active = 1 && 
                     ( user_auth.created_from is NULL || user_auth.created_from IN (1, 2) )
                 ORDER BY course_application.preferred_intake DESC        
                 `;
