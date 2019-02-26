@@ -295,7 +295,7 @@ function sendEmailWithCSVAttachmentForIntakeDetails(data) {
             (csv_raw_data) => {
                 let email_content = {
                     html: '',
-                    subject: '[System Generated] Preferred Intake CV  ' + date_process,
+                    subject: '[System Generated] Preferred Intake CSV  ' + date_process,
                     from: config.email.efrom,
                     to: email_config.to,
                     cc: email_config.cc,
