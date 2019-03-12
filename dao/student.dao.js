@@ -38,7 +38,19 @@ function getLatestStudentsWithOrWithoutCourseApplication(hours) {
                 LEFT JOIN provider ON course.provider_id = provider.provider_id 
                 LEFT JOIN agency ON agent.agency_id = agency.id  
                 LEFT JOIN country ON student.country_id = country.id 
-                LEFT JOIN fee ON fee.fee_course_id = course_application.course_id
+                LEFT JOIN  (
+                    SELECT
+                      fee.* 
+                    FROM
+                      ( 
+                        SELECT 
+                          fee.*, 
+                          REPLACE(CONVERT(fee_year - YEAR(CURDATE()), CHAR), "-", "a") nearest_year 
+                        FROM fee 
+                        ORDER BY nearest_year ASC 
+                      ) fee 
+                    GROUP BY fee_course_id 
+                  ) fee ON course.course_id = fee.fee_course_id
 
             WHERE 
                 student.role_id = 2 
