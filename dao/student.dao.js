@@ -195,7 +195,20 @@ function getAllStudentsDetailedInformation() {
                 LEFT JOIN course ON course_application.course_id = course.course_id 
                 LEFT JOIN provider ON course.provider_id = provider.provider_id 
                 LEFT JOIN course_application_status ON course_application.course_application_status_id = course_application_status.id 
-                LEFT JOIN fee ON fee.fee_course_id = course_application.course_id
+                LEFT JOIN  (
+                    SELECT
+                      fee.* 
+                    FROM
+                      ( 
+                        SELECT 
+                          fee.*, 
+                          REPLACE(CONVERT(fee_year - YEAR(CURDATE()), CHAR), "-", "a") nearest_year 
+                        FROM fee 
+                        ORDER BY nearest_year ASC 
+                      ) fee 
+                    GROUP BY fee_course_id 
+                  ) fee ON course.course_id = fee.fee_course_id
+
                 -- course application status change history
                 LEFT JOIN ( -- get latest application change history
                     SELECT * FROM (
@@ -469,15 +482,14 @@ function getStudentLatestChangesApplicationWeeklyPotentialInvoice() {
                             course.course_name AS course,
                             DATE_FORMAT(course_application.preferred_intake, "%M %d %Y")AS expected_commencement_date,
                 
-                            (
-                                SELECT  DISTINCT
-                                    course_application_status.label AS current_application_status
-                                FROM course_application_history
-                                LEFT JOIN course_application_status ON course_application_status.id = course_application_history.course_application_status_id
-                                WHERE course_application_history.course_application_id = current_course_status.course_application_id
-                                GROUP BY current_course_status.course_application_id
-                                AND update_date < NOW()
-                            ) AS previous_application_status,
+                           (
+                                SELECT DISTINCT 
+									prev_course_application_status.label
+								FROM course_application_history AS prev_course_application_history
+                                LEFT JOIN course_application_status AS prev_course_application_status ON prev_course_application_status.id = prev_course_application_history.course_application_status_id
+								WHERE prev_course_application_history.course_application_id = course_application.id AND prev_course_application_history.update_date < current_course_status.update_date
+                                ORDER BY update_date DESC LIMIT 1
+                           ) AS previous_application_status,
                 
                             course_application_status.label AS current_application_status,
                             DATE_FORMAT(current_course_status.update_date, "%M %d %Y") AS date_changed_to_current_status,
