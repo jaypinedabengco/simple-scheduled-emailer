@@ -536,12 +536,12 @@ function getCourseApplicationsWithoutInvoice(){
             let sql = `
                 SELECT 
 
-                student.firstname,
-                student.lastname,
-                provider.institution_trading_name institution_name, 
-                course.course_name AS course_application,
-                course_application_status.label AS application_status,
-                IF(course.active ,'Yes','No') AS course_active
+                CONCAT(student.firstname,  " " ,student.lastname) Student_Name,
+                provider.institution_trading_name Institution_Name, 
+                course.course_name AS Course_Application,
+                course_application_status.label AS Application_Status,
+                IF(course.active ,'Yes','No') AS Course_Active
+                
                 FROM course_application 
                 
                 LEFT JOIN user AS student ON student.id = course_application.student_id
