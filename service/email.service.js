@@ -29,6 +29,7 @@ exports.sendLatestApprovedAgenciesViaEmail = sendLatestApprovedAgenciesViaEmail;
 exports.sendAllAgenciesViaEmail = sendAllAgenciesViaEmail;
 exports.sendIntakeReportViaEmail = sendIntakeReportViaEmail;
 exports.sendStudentLatestChangesApplicationWeeklyPotentialInvoice = sendStudentLatestChangesApplicationWeeklyPotentialInvoice;
+exports.sendStudentApplicationWithoutInvoice = sendStudentApplicationWithoutInvoice;
 
 ///
 
@@ -106,6 +107,18 @@ function sendStudentLatestChangesApplicationWeeklyPotentialInvoice() {
         student_dao
             .getStudentLatestChangesApplicationWeeklyPotentialInvoice()
             .then(result => sendEmailWithCSVAttachmentForStudentLatestChangesApplicationWeeklyPotentialInvoice(result))
+            .then(resolve, reject)
+            .catch(reject);
+    });
+}
+
+
+
+function sendStudentApplicationWithoutInvoice() {
+    return new Promise((resolve, reject) => {
+        student_dao
+            .getCourseApplicationsWithoutInvoice()
+            .then(result => sendEmailWithCSVAttachmentForStudentApplicationWithoutInvoice(result))
             .then(resolve, reject)
             .catch(reject);
     });
@@ -231,6 +244,66 @@ function sendEmailWithCSVAttachmentForStudentLatestChangesApplicationWeeklyPoten
             .catch(reject);
     })
 }
+
+/**
+ * 
+ * @param {*} student_info 
+ */
+function sendEmailWithCSVAttachmentForStudentApplicationWithoutInvoice(student_info) {
+    return new Promise((resolve, reject) => {
+
+        var email_timezone = config.cron.student_application_without_invoice.timezone;
+        var date_process = (moment().tz(email_timezone).format('DD MMM YYYY hh:mmA'));
+        var csv_file_name = `[System Generated] Applications without Invoices CSV ${date_process} Syd.csv`;
+        var csv_mime_type = 'text/csv';
+
+
+        convertDBResultToDynamicCSV(student_info)
+            .then(
+            (csv_raw_data) => {
+                let email_content = {
+                    html: '',
+                    subject: `[System Generated] Applications without Invoices CSV ${date_process} Syd` ,
+                    from: config.email.efrom,
+                    to: config.email.student_application_without_invoice.to,
+                    cc: config.email.student_application_without_invoice.cc,
+                    bcc: config.email.student_application_without_invoice.bcc,
+                    has_csv_attachment: student_info.length > 0,
+                    csv_filename: csv_file_name,
+                    csv_content: csv_raw_data
+                };
+
+                //build email to send
+                email_content.html = `
+                    <div>
+                        <div>[SYSTEM GENERATED]</div>
+                        <br/><br/>
+                        <div>
+                        <b>Student Course Application for Invoicing Total : <b/>
+                        ${student_info.length}
+                        </div>
+                    </div>
+                    <br/><br/>
+                `;
+
+                //if has content, then attach
+                if (!email_content.has_csv_attachment) {
+                    email_content.html = `
+                        <div>
+                          <b> No Student Course Application for Invoicing </b>
+                        </div>
+                    `;
+                }
+                return sendEmail(email_content);
+
+            }
+            )
+            .then(resolve, reject)
+            .catch(reject);
+    })
+}
+
+
 /**
  * 
  * @param {*} data 

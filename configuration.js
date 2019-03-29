@@ -48,6 +48,11 @@ module.exports = {
             to: process.env.CSV_REPORT_EMAILER_WEEKLY_POTENTIAL_INVOICING_TO,
             cc: process.env.CSV_REPORT_EMAILER_WEEKLY_POTENTIAL_INVOICING_CC,
             bcc: process.env.CSV_REPORT_EMAILER_WEEKLY_POTENTIAL_INVOICING_BCC 
+        },
+        student_application_without_invoice : {
+            to: process.env.CSV_REPORT_EMAILER_STUDENT_APPLICTION_WITHOUT_INVOICE_TO,
+            cc: process.env.CSV_REPORT_EMAILER_STUDENT_APPLICTION_WITHOUT_INVOICE_CC,
+            bcc: process.env.CSV_REPORT_EMAILER_STUDENT_APPLICTION_WITHOUT_INVOICE_BCC 
         }
     },
     cron: {
@@ -81,6 +86,10 @@ module.exports = {
         weekly_potential_invoice :{
             timezone: 'Australia/Sydney',
             morning: '00 00 08 * * 1'  //8 AM Monday
+        },
+        student_application_without_invoice : {
+            timezone: 'Australia/Sydney',
+            every_friday : '00 00 08 * * 5' //every friday, 8am
         }
     }
 };

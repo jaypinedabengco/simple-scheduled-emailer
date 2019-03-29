@@ -5,7 +5,7 @@ exports.getLatestStudentsWithOrWithoutCourseApplication = getLatestStudentsWithO
 exports.getAllStudentsDetailedInformation = getAllStudentsDetailedInformation;
 exports.getAllIntakesReport = getAllIntakesReport;
 exports.getStudentLatestChangesApplicationWeeklyPotentialInvoice = getStudentLatestChangesApplicationWeeklyPotentialInvoice;
-
+exports.getCourseApplicationsWithoutInvoice = getCourseApplicationsWithoutInvoice;
 ////
 
 function getLatestStudentsWithOrWithoutCourseApplication(hours) {
@@ -516,6 +516,43 @@ function getStudentLatestChangesApplicationWeeklyPotentialInvoice() {
                         ORDER BY update_date DESC
                 ) student_info
                 GROUP BY student_info.course_application_id;
+            `;
+            return connection.query(sql, [], (err, resultSet) => {
+                if (err) {
+                    connection.release();
+                    return reject(err);
+                }
+                connection.release();
+                return resolve(resultSet);
+            });
+
+        });
+    });
+}
+
+function getCourseApplicationsWithoutInvoice(){
+    return new Promise((resolve, reject) => {
+        database.getConnection((err, connection) => {
+            let sql = `
+                SELECT 
+
+                student.firstname,
+                student.lastname,
+                provider.institution_trading_name institution_name, 
+                course.course_name AS course_application,
+                course_application_status.label AS application_status,
+                IF(course.active ,'Yes','No') AS course_active
+                FROM course_application 
+                
+                LEFT JOIN user AS student ON student.id = course_application.student_id
+                LEFT JOIN course ON course.course_id = course_application.course_id
+                LEFT JOIN course_application_status ON course_application_status.id = course_application.course_application_status_id
+                LEFT JOIN provider ON provider.provider_id = course.provider_id
+                
+                WHERE course_application.student_id NOT IN (SELECT student_id FROM invoice_request_form)
+                AND course_application.course_id NOT IN (SELECT course_id FROM invoice_request_form)
+                AND course_application.course_application_status_id IN (4, 5, 6, 7, 8, 10, 11, 12)
+                AND student.deleted = false;
             `;
             return connection.query(sql, [], (err, resultSet) => {
                 if (err) {
