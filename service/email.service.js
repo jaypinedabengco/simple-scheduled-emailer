@@ -30,6 +30,7 @@ exports.sendAllAgenciesViaEmail = sendAllAgenciesViaEmail;
 exports.sendIntakeReportViaEmail = sendIntakeReportViaEmail;
 exports.sendStudentLatestChangesApplicationWeeklyPotentialInvoice = sendStudentLatestChangesApplicationWeeklyPotentialInvoice;
 exports.sendStudentApplicationWithoutInvoice = sendStudentApplicationWithoutInvoice;
+exports.sendStudentLatestApplicationViaEmailEveryMonday = sendStudentLatestApplicationViaEmailEveryMonday;
 
 ///
 
@@ -643,3 +644,15 @@ function convertDBResultToDynamicCSV(data){
 //     });
 
 // }
+
+
+
+function sendStudentLatestApplicationViaEmailEveryMonday() {
+    return new Promise((resolve, reject) => {
+        student_dao
+            .getLatestStudentsWithOrWithoutCourseApplicationFromSundayToSaturday()
+            .then(sendEmailWithCSVAttachmentForStudentApplications)
+            .then(resolve, reject)
+            .catch(reject);
+    });
+}

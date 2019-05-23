@@ -65,7 +65,8 @@ module.exports = {
                 morning: 11, 
                 afternoon: 7, 
                 evening: 6
-            }
+            },
+            morning_monday: '00 00 09 * * 1'  //8 AM Monday
         }, 
         student_full_details_email : {
             timezone: 'Australia/Sydney',

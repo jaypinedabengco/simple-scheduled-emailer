@@ -6,6 +6,8 @@ exports.getAllStudentsDetailedInformation = getAllStudentsDetailedInformation;
 exports.getAllIntakesReport = getAllIntakesReport;
 exports.getStudentLatestChangesApplicationWeeklyPotentialInvoice = getStudentLatestChangesApplicationWeeklyPotentialInvoice;
 exports.getCourseApplicationsWithoutInvoice = getCourseApplicationsWithoutInvoice;
+exports.getLatestStudentsWithOrWithoutCourseApplicationFromSundayToSaturday = getLatestStudentsWithOrWithoutCourseApplicationFromSundayToSaturday;
+
 ////
 
 function getLatestStudentsWithOrWithoutCourseApplication(hours) {
@@ -564,5 +566,80 @@ function getCourseApplicationsWithoutInvoice(){
             });
 
         });
+    });
+}
+
+
+function getLatestStudentsWithOrWithoutCourseApplicationFromSundayToSaturday() {
+    return new Promise((resolve, reject) => {
+
+        database.getConnection((err, connection) => {
+            if (err) {
+                return reject(err);
+            }
+
+            var params = [];
+
+            var sql = `
+            SELECT DISTINCT 
+                CONCAT(student.firstname, " ", student.lastname) Student_Name, 
+                country.name Student_Country, 
+                course.course_name Applied_Course_Name, 
+                provider.institution_trading_name Applied_Institution_Name, 
+                course_application.date_created Date_of_Application, 
+                agency.name agency_name, 
+                CONCAT(agent.firstname, " ", agent.lastname) Agent_Name,
+                course_application.preferred_intake expected_commencement_date,
+                fee.total_annual_fee
+            FROM user student 
+                LEFT JOIN user_auth student_auth ON student.id = student_auth.user_id
+                LEFT JOIN student_agent ON student.id = student_agent.student_id
+                LEFT JOIN user agent ON student_agent.agent_id = agent.id 
+                LEFT JOIN course_application ON student.id = course_application.student_id
+                LEFT JOIN course ON course_application.course_id = course.course_id 
+                LEFT JOIN provider ON course.provider_id = provider.provider_id 
+                LEFT JOIN agency ON agent.agency_id = agency.id  
+                LEFT JOIN country ON student.country_id = country.id 
+                LEFT JOIN  (
+                    SELECT
+                      fee.* 
+                    FROM
+                      ( 
+                        SELECT 
+                          fee.*, 
+                          REPLACE(CONVERT(fee_year - YEAR(CURDATE()), CHAR), "-", "a") nearest_year 
+                        FROM fee 
+                        ORDER BY nearest_year ASC 
+                      ) fee 
+                    GROUP BY fee_course_id 
+                  ) fee ON course.course_id = fee.fee_course_id
+
+            WHERE 
+                student.role_id = 2 
+
+                -- should be created either on studylane or gsp
+                AND ( student_auth.created_from is NULL || student_auth.created_from IN (1,2) )
+                
+                AND ( 
+                    ( course_application.date_created >= timestampadd(day, -8, now()) AND  course_application.date_created <= timestampadd(day, -2, now()) )
+                    || 
+                    ( FROM_UNIXTIME(student.date_created/1000) >= timestampadd(day, -8, now()) AND FROM_UNIXTIME(student.date_created/1000) <= timestampadd(day, -2, now()) )
+                ) 
+                `;
+
+        
+
+            sql += ' ORDER BY course_application.date_created, student.date_created DESC';
+            return connection.query(sql, params, (err, resultSet) => {
+                if (err) {
+                    connection.release();
+                    return reject(err);
+                }
+                connection.release();
+                return resolve(resultSet);
+            });
+
+        });
+
     });
 }

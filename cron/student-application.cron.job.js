@@ -7,35 +7,47 @@ var TIMEZONE = CRON_CONFIG.timezone;
 
 const STARTED_MESSAGE = 'CRON JOB STARTED FOR STUDENT APPLICATION';
 
-/**
- * 
- */
-new cron.CronJob(CRON_CONFIG.morning, 
-    () => { email_service.sendStudentLatestApplicationViaEmail(CRON_CONFIG.fetch_in_hours.morning); },  //11 hours
-    () => {},
-    true, 
-    TIMEZONE
-);
-console.log(STARTED_MESSAGE, CRON_CONFIG.morning, TIMEZONE);
+// /**
+//  * 
+//  */
+// new cron.CronJob(CRON_CONFIG.morning, 
+//     () => { email_service.sendStudentLatestApplicationViaEmail(CRON_CONFIG.fetch_in_hours.morning); },  //11 hours
+//     () => {},
+//     true, 
+//     TIMEZONE
+// );
+// console.log(STARTED_MESSAGE, CRON_CONFIG.morning, TIMEZONE);
+
+// /**
+//  * 
+//  */
+// new cron.CronJob(CRON_CONFIG.afternoon, 
+//     () => { email_service.sendStudentLatestApplicationViaEmail(CRON_CONFIG.fetch_in_hours.afternoon); },  //7 hours
+//     () => {},
+//     true, 
+//     TIMEZONE
+// );
+// console.log(STARTED_MESSAGE, CRON_CONFIG.afternoon, TIMEZONE);
+
+// /**
+//  * 
+//  */
+// new cron.CronJob(CRON_CONFIG.evening, 
+//     () => { email_service.sendStudentLatestApplicationViaEmail(CRON_CONFIG.fetch_in_hours.evening); }, 
+//     () => {},
+//     true, 
+//     TIMEZONE
+// );
+// console.log(STARTED_MESSAGE, CRON_CONFIG.evening, TIMEZONE);
+
 
 /**
- * 
+ * Every 8AM of Monday
  */
-new cron.CronJob(CRON_CONFIG.afternoon, 
-    () => { email_service.sendStudentLatestApplicationViaEmail(CRON_CONFIG.fetch_in_hours.afternoon); },  //7 hours
+new cron.CronJob(CRON_CONFIG.morning_monday, 
+    () => { email_service.sendStudentLatestApplicationViaEmailEveryMonday(); }, 
     () => {},
     true, 
     TIMEZONE
 );
-console.log(STARTED_MESSAGE, CRON_CONFIG.afternoon, TIMEZONE);
-
-/**
- * 
- */
-new cron.CronJob(CRON_CONFIG.evening, 
-    () => { email_service.sendStudentLatestApplicationViaEmail(CRON_CONFIG.fetch_in_hours.evening); }, 
-    () => {},
-    true, 
-    TIMEZONE
-);
-console.log(STARTED_MESSAGE, CRON_CONFIG.evening, TIMEZONE);
+console.log(STARTED_MESSAGE, CRON_CONFIG.morning_monday, TIMEZONE);
