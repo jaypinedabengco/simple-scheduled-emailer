@@ -577,64 +577,63 @@ async function getStudentsWithStudyCommencedCourseApplication() {
         database.getConnection((err, connection) => {
             const sql = `
                 SELECT DISTINCT 
-                    IFNULL(student.firstname, '') 'Student First Name',
-                    IFNULL(student.lastname, '') 'Student Last Name',
-                    IFNULL(student.email, '') 'Email',
-                    IFNULL(mobile.number, '') 'Mobile Phone',
-                    IFNULL(telephone.number, '') 'Contact No.',
-                    IFNULL(provider.provider_name, '') 'Institution',
-                    IFNULL(course.course_name, '') 'Course',
-                    IFNULL(campus.campus_name, '') 'Campus',
-                    IFNULL(campus_location_details.city, '') 'City',
-                    IFNULL(student_passport_detail.passport_nationality, '') 'Student Nationality',
-                    IFNULL(agency.name, '') 'Agency',
-                    IFNULL(CONCAT(agent.firstname, ' ', agent.lastname), '') 'Counsellor',
-                    IFNULL(latest_course_application_history_status.update_date, '') 'Date Status Changed to Study Commenced',
-                    IFNULL(course_application.preferred_intake, '') 'Expected Commencement Date'
-                FROM course_application 
-                    INNER JOIN (SELECT * 
-                                FROM   (SELECT * 
-                                        FROM   course_application_history 
-                                        ORDER  BY update_date DESC) 
-                                        ordered_course_application_history 
-                                GROUP  BY course_application_id) 
-                    latest_course_application_history_status 
-                            ON course_application.id = 
-                                latest_course_application_history_status.course_application_id 
-                                AND course_application.course_application_status_id = 
-                    latest_course_application_history_status.course_application_status_id 
-                    INNER JOIN user student 
-                            ON course_application.student_id = student.id 
-                    INNER JOIN course 
-                            ON course_application.course_id = course.course_id 
-                    INNER JOIN provider 
-                            ON course.provider_id = provider.provider_id 
-                    INNER JOIN campus 
-                            ON course_application.campus_id = campus.campus_id 
-                    INNER JOIN campus_location_details 
-                            ON campus.campus_id = campus_location_details.campus_id 
-                    INNER JOIN student_agent 
-                            ON course_application.student_id = student_agent.student_id 
-                    INNER JOIN user agent 
-                            ON student_agent.agent_id = agent.id 
-                    INNER JOIN agency_location 
-                            ON agent.location_id = agency_location.id 
-                    INNER JOIN agency 
-                            ON agency_location.agency_id = agency.id 
-                    LEFT JOIN user_phone mobile 
-                            ON student.id = mobile.user_id 
-                                AND mobile.phone_type_id = 2 
-                    LEFT JOIN user_phone telephone 
-                            ON student.id = telephone.user_id 
-                                AND telephone.phone_type_id = 1 
-                    LEFT JOIN student_passport_detail 
-                            ON student.id = student_passport_detail.student_id 
-                WHERE  student.deleted IS FALSE 
-                    AND student.user_status_id = 1 
-                    AND course_application.course_application_status_id = 14 
-                    AND ( latest_course_application_history_status.update_date >= 
-                            '2018-01-01 00:00:00' 
-                            OR course_application.preferred_intake >= '2018-01-01 00:00:00' )
+                IFNULL(student.firstname, '') 'Student First Name',
+                IFNULL(student.lastname, '') 'Student Last Name',
+                IFNULL(student.email, '') 'Email',
+                IFNULL(telephone.number, '') 'Contact No.',
+                IFNULL(course.course_name, '') 'Course Name',
+                IFNULL(provider.provider_name, '') 'Institution',                    
+                IFNULL(campus.campus_name, '') 'Campus Name',
+                IFNULL(campus_location_details.country_code, '') 'Campus Country',
+                IFNULL(campus_location_details.state, '') 'Campus State',
+                IFNULL(campus_location_details.city, '') 'Campus City',
+                IFNULL(student_passport_detail.passport_nationality, '') 'Student Nationality',
+                IFNULL(agency.name, '') 'Agency',
+                IFNULL(CONCAT(agent.firstname, ' ', agent.lastname), '') 'Counsellor',
+                IFNULL(latest_course_application_history_status.update_date, '') 'Date Status Changed to Study Commenced',
+                IFNULL(course_application.preferred_intake, '') 'Expected Commencement Date',
+                IF(course_application.active > 0, 'Yes', 'No')  'Course Active'
+            FROM course_application 
+                INNER JOIN (SELECT * 
+                            FROM   (SELECT * 
+                                    FROM   course_application_history 
+                                    ORDER  BY update_date DESC) 
+                                    ordered_course_application_history 
+                            GROUP  BY course_application_id) 
+                latest_course_application_history_status 
+                        ON course_application.id = 
+                            latest_course_application_history_status.course_application_id 
+                            AND course_application.course_application_status_id = 
+                latest_course_application_history_status.course_application_status_id 
+                INNER JOIN user student 
+                        ON course_application.student_id = student.id 
+                INNER JOIN course 
+                        ON course_application.course_id = course.course_id 
+                INNER JOIN provider 
+                        ON course.provider_id = provider.provider_id 
+                INNER JOIN campus 
+                        ON course_application.campus_id = campus.campus_id 
+                INNER JOIN campus_location_details 
+                        ON campus.campus_id = campus_location_details.campus_id 
+                INNER JOIN student_agent 
+                        ON course_application.student_id = student_agent.student_id 
+                INNER JOIN user agent 
+                        ON student_agent.agent_id = agent.id 
+                INNER JOIN agency_location 
+                        ON agent.location_id = agency_location.id 
+                INNER JOIN agency 
+                        ON agency_location.agency_id = agency.id 
+                LEFT JOIN user_phone telephone 
+                        ON student.id = telephone.user_id 
+                            AND telephone.phone_type_id = 1 
+                LEFT JOIN student_passport_detail 
+                        ON student.id = student_passport_detail.student_id 
+            WHERE  student.deleted IS FALSE 
+                AND student.user_status_id = 1 
+                AND course_application.course_application_status_id = 14 
+                AND ( latest_course_application_history_status.update_date >= 
+                        '2018-01-01 00:00:00' 
+                        OR course_application.preferred_intake >= '2018-01-01 00:00:00' )
             `;
 
             return connection.query(sql, [], (err, resultSet) => {

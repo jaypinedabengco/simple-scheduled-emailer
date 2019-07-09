@@ -1,4 +1,4 @@
-export BASE_EMAIL_RECIPIENT="jay.bengco@tooltwist.com, zizette.nuqui@tooltwist.com"
+export BASE_EMAIL_RECIPIENT="slaneTestCronEmail@yopmail.com"
 
 export CSV_REPORT_EMAILER_STUDENT_APP_TO=$BASE_EMAIL_RECIPIENT
 export CSV_REPORT_EMAILER_STUDENT_APP_CC=$BASE_EMAIL_RECIPIENT
