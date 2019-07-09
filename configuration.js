@@ -1,6 +1,6 @@
 module.exports = {
     build: {
-        version:1.6,
+        version:"1.6.1",
         date:20190709
     },
     db: {

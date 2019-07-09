@@ -577,20 +577,20 @@ async function getStudentsWithStudyCommencedCourseApplication() {
         database.getConnection((err, connection) => {
             const sql = `
                 SELECT DISTINCT 
-                    student.firstname 'Student First Name',
-                    student.lastname 'Student Last Name',
-                    student.email 'Email',
-                    mobile.number 'Mobile Phone',
-                    telephone.number 'Contact No.',
-                    provider.provider_name 'Institution',
-                    course.course_name 'Course',
-                    campus.campus_name 'Campus',
-                    campus_location_details.city 'City',
-                    student_passport_detail.passport_nationality 'Student Nationality',
-                    agency.name 'Agency',
-                    CONCAT(agent.firstname, ' ', agent.lastname) 'Counsellor',
-                    latest_course_application_history_status.update_date 'Date Status Changed to Study Commenced',
-                    course_application.preferred_intake 'Expected Commencement Date'
+                    IFNULL(student.firstname, '') 'Student First Name',
+                    IFNULL(student.lastname, '') 'Student Last Name',
+                    IFNULL(student.email, '') 'Email',
+                    IFNULL(mobile.number, '') 'Mobile Phone',
+                    IFNULL(telephone.number, '') 'Contact No.',
+                    IFNULL(provider.provider_name, '') 'Institution',
+                    IFNULL(course.course_name, '') 'Course',
+                    IFNULL(campus.campus_name, '') 'Campus',
+                    IFNULL(campus_location_details.city, '') 'City',
+                    IFNULL(student_passport_detail.passport_nationality, '') 'Student Nationality',
+                    IFNULL(agency.name, '') 'Agency',
+                    IFNULL(CONCAT(agent.firstname, ' ', agent.lastname), '') 'Counsellor',
+                    IFNULL(latest_course_application_history_status.update_date, '') 'Date Status Changed to Study Commenced',
+                    IFNULL(course_application.preferred_intake, '') 'Expected Commencement Date'
                 FROM course_application 
                     INNER JOIN (SELECT * 
                                 FROM   (SELECT * 
