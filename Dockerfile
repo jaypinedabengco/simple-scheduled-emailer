@@ -17,7 +17,7 @@
 #export CSV_REPORT_EMAILER_APPROVED_AGENCY_BCC="???@??.com, ???@??.com"
 
 
-FROM node:6.11.2
+FROM node:8.11.3
 
 # Create app directory
 RUN mkdir -p /usr/src/app
