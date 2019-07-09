@@ -1,7 +1,7 @@
 module.exports = {
     build: {
-        version:1.5,
-        date:20181108
+        version:1.6,
+        date:20190709
     },
     db: {
         host: process.env.DB_HOST,
@@ -53,6 +53,11 @@ module.exports = {
             to: process.env.CSV_REPORT_EMAILER_STUDENT_APPLICTION_WITHOUT_INVOICE_TO,
             cc: process.env.CSV_REPORT_EMAILER_STUDENT_APPLICTION_WITHOUT_INVOICE_CC,
             bcc: process.env.CSV_REPORT_EMAILER_STUDENT_APPLICTION_WITHOUT_INVOICE_BCC 
+        }, 
+        student_with_study_commenced_application: {
+            to: process.env.CSV_REPORT_EMAILER_STUDENT_WITH_STUDY_COMMENCED_APPLICATION_TO,
+            cc: process.env.CSV_REPORT_EMAILER_STUDENT_WITH_STUDY_COMMENCED_APPLICATION_CC,
+            bcc: process.env.CSV_REPORT_EMAILER_STUDENT_WITH_STUDY_COMMENCED_APPLICATION_BCC
         }
     },
     cron: {
@@ -91,6 +96,10 @@ module.exports = {
         student_application_without_invoice : {
             timezone: 'Australia/Sydney',
             every_friday : '00 00 08 * * 5' //every friday, 8am
+        },
+        student_with_study_commenced_application: {
+            timezone: 'Australia/Sydney',
+            morning: '00 00 08 * * 1'  //8 AM Monday            
         }
     }
 };
