@@ -470,6 +470,7 @@ function getStudentLatestChangesApplicationWeeklyPotentialInvoice() {
                     student_last_name,
                     student_country,
                     institution,
+                    student_info.course_application_id AS gsp_application_id,
                     course,
                     expected_commencement_date,
                     previous_application_status,
