@@ -465,6 +465,7 @@ function getStudentLatestChangesApplicationWeeklyPotentialInvoice() {
         database.getConnection((err, connection) => {
             let sql = `
                 SELECT
+                    gsp_sid,
                     student_first_name,
                     student_last_name,
                     student_country,
@@ -478,6 +479,7 @@ function getStudentLatestChangesApplicationWeeklyPotentialInvoice() {
                     counsellor_name
                     FROM  (
                         SELECT  DISTINCT
+                            student.id AS gsp_sid,
                             student.firstname AS student_first_name,
                             student.lastname AS student_last_name,
                             country.name AS student_country,
@@ -533,7 +535,7 @@ function getStudentLatestChangesApplicationWeeklyPotentialInvoice() {
     });
 }
 
-function getCourseApplicationsWithoutInvoice(){
+function getCourseApplicationsWithoutInvoice() {
     return new Promise((resolve, reject) => {
         database.getConnection((err, connection) => {
             let sql = `
@@ -706,7 +708,7 @@ function getLatestStudentsWithOrWithoutCourseApplicationFromSundayToSaturday() {
                 ) 
                 `;
 
-        
+
 
             sql += ' ORDER BY course_application.date_created, student.date_created DESC';
             return connection.query(sql, params, (err, resultSet) => {
