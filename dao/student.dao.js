@@ -579,11 +579,13 @@ async function getStudentsWithStudyCommencedCourseApplication() {
         database.getConnection((err, connection) => {
             const sql = `
                 SELECT DISTINCT 
+                IFNULL(student.id, '') 'Student Id',
                 IFNULL(student.firstname, '') 'Student First Name',
                 IFNULL(student.lastname, '') 'Student Last Name',
                 IFNULL(student.email, '') 'Email',
                 IFNULL(telephone.number, '') 'Contact No.',
                 IFNULL(course.course_name, '') 'Course Name',
+                IFNULL(course_application_status.label, '') 'Course Application Status',
                 IFNULL(provider.provider_name, '') 'Institution',                    
                 IFNULL(campus.campus_name, '') 'Campus Name',
                 IFNULL(campus_location_details.country_code, '') 'Campus Country',
@@ -611,6 +613,8 @@ async function getStudentsWithStudyCommencedCourseApplication() {
                         ON course_application.student_id = student.id 
                 INNER JOIN course 
                         ON course_application.course_id = course.course_id 
+                INNER JOIN course_application_status
+                        ON course_application.course_application_status_id = course_application_status.id
                 INNER JOIN provider 
                         ON course.provider_id = provider.provider_id 
                 INNER JOIN campus 
@@ -632,7 +636,7 @@ async function getStudentsWithStudyCommencedCourseApplication() {
                         ON student.id = student_passport_detail.student_id 
             WHERE  student.deleted IS FALSE 
                 AND student.user_status_id = 1 
-                AND course_application.course_application_status_id = 14 
+                AND course_application.course_application_status_id = 12 
                 AND ( latest_course_application_history_status.update_date >= 
                         '2018-01-01 00:00:00' 
                         OR course_application.preferred_intake >= '2018-01-01 00:00:00' )
