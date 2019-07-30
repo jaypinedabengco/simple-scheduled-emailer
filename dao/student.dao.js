@@ -630,7 +630,7 @@ async function getStudentsWithStudyCommencedCourseApplication() {
                         ON student.id = student_passport_detail.student_id 
             WHERE  student.deleted IS FALSE 
                 AND student.user_status_id = 1 
-                AND course_application.course_application_status_id = 14 
+                AND course_application.course_application_status_id = 12 
                 AND ( latest_course_application_history_status.update_date >= 
                         '2018-01-01 00:00:00' 
                         OR course_application.preferred_intake >= '2018-01-01 00:00:00' )
