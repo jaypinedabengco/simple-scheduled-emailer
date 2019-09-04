@@ -16,6 +16,7 @@ router.get(
   "/student_with_study_commenced_application",
   sendStudentsWithStudyCommencedCourseApplication
 );
+router.get("/institution", sendInstitutionViaEmail);
 
 //////
 
@@ -123,6 +124,22 @@ function sendAsCSV(res, prefix_name, csv_data) {
   );
   res.set("Content-Type", "text/csv");
   res.status(200).send(csv_data);
+}
+
+/**
+ *
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
+function sendInstitutionViaEmail(req, res, next) {
+  email_service.sendInstitutionList().then(
+    csv_raw_data => sendAsCSV(res, "institution", csv_raw_data),
+    err => {
+      console.log("error", err);
+      res.send(err);
+    }
+  );
 }
 
 module.exports = router;

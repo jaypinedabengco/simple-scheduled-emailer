@@ -795,13 +795,13 @@ function sortOutAllowedAndNotAllowedCountries(allowedCountryList, institutionLis
     // console.log(NotallowedCountriesFilteredByProviderId.length);
       
       if (NotallowedCountriesFilteredByProviderId.length == 0) { // all countries are allowed
-          institution.Territory = 'Global';
-          institution.Excluded = 'None';
+          institution.Coverage = 'Global';
+          institution.Territory = 'None';
           return;
       }
       if (NotallowedCountriesFilteredByProviderId.length == 126) { // meaning allowed and not allowed are the same count, then show allowed and allowed countries
           let NotallowedCountries = [];
-          let countriesExcluded = [];
+          let countriesTerritory = [];
           let countriesAllowed = [];
           NotallowedCountriesFilteredByProviderId.forEach(function (country) {
               country.country_code;
@@ -813,15 +813,15 @@ function sortOutAllowedAndNotAllowedCountries(allowedCountryList, institutionLis
           });
           NotallowedCountries.forEach(function (country_code) {
               let country = _u.findWhere(originalCountryList, { 'code': country_code });
-              countriesExcluded.push(country.name);
+              countriesTerritory.push(country.name);
           });
           let allowedCountryList = _u.difference(countryListCode, NotallowedCountries);
           allowedCountryList.forEach(function (country_code) {
               let country = _u.findWhere(originalCountryList, { 'code': country_code });
               countriesAllowed.push(country.name);
           });
-          institution.Territory = countriesAllowed.join(',');
-          institution.Excluded = countriesExcluded.join(',');
+          institution.Coverage = countriesAllowed.join(',');
+          institution.Territory = countriesTerritory.join(',');
           return;
       }
       if (NotallowedCountriesFilteredByProviderId.length < 126) { // meaning majority of the countries are allowed, then show all not allowed countries  
@@ -838,8 +838,8 @@ function sortOutAllowedAndNotAllowedCountries(allowedCountryList, institutionLis
               let country = _u.findWhere(originalCountryList, { 'code': country_code });
               countries.push(country.name);
           });
-          institution.Territory = 'Not Global';
-          institution.Excluded = countries.join(',');
+          institution.Coverage = 'Not Global';
+          institution.Territory = countries.join(',');
       }
       else { // meaning, majority of the countries are not allowed. then show allowed countries  
           let NotallowedCountries = [];
@@ -856,8 +856,8 @@ function sortOutAllowedAndNotAllowedCountries(allowedCountryList, institutionLis
               let country = _u.findWhere(originalCountryList, { 'code': country_code });
               countries.push(country.name);
           });
-          institution.Territory = countries.join(',');
-          institution.Excluded = '-';
+          institution.Coverage = countries.join(',');
+          institution.Territory = '-';
       }
   });
 }
