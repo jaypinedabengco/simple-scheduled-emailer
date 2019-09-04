@@ -5,7 +5,8 @@ var fs = require("fs"),
   smtpTransport = require("nodemailer-smtp-transport");
 var config = require("./../configuration");
 var student_dao = require("./../dao/student.dao"),
-  agency_dao = require("./../dao/agency.dao");
+  agency_dao = require("./../dao/agency.dao"),
+  institutionDao = require("./../dao/institution.dao");
 
 ///
 
@@ -34,6 +35,7 @@ exports.sendStudentLatestChangesApplicationWeeklyPotentialInvoice = sendStudentL
 exports.sendStudentApplicationWithoutInvoice = sendStudentApplicationWithoutInvoice;
 exports.sendStudentLatestApplicationViaEmailEveryMonday = sendStudentLatestApplicationViaEmailEveryMonday;
 exports.sendStudentsWithStudyCommencedCourseApplication = sendStudentsWithStudyCommencedCourseApplication;
+exports.sendInstitutionList = sendInstitutionList;
 
 ///
 
@@ -701,3 +703,67 @@ function sendStudentLatestApplicationViaEmailEveryMonday() {
     });
 }
 
+
+function sendInstitutionList(){
+  return new Promise((resolve, reject) => {
+    institutionDao
+        .getInstitutionList()
+        .then(sendEmailWithCSVAttachmentForInstitution)
+        .then(resolve, reject)
+        .catch(reject);
+  });
+}
+
+
+
+/**
+ *
+ * @param {*} student_info
+ */
+function sendEmailWithCSVAttachmentForInstitution(institution_list) {
+  return new Promise((resolve, reject) => {
+    var email_timezone = config.cron.institution.timezone;
+    var date_process = moment()
+      .tz(email_timezone)
+      .format("MM-DD-YYYY-hh:mm:ss");
+    var csv_file_name = "institution-" + date_process + ".csv";
+    var csv_mime_type = "text/csv";
+
+    convertDBResultToDynamicCSV(institution_list)
+      .then(csv_raw_data => {
+        let email_content = {
+          html: "",
+          subject: "[System Generated] Institution CSV " + date_process,
+          from: config.email.efrom,
+          to: config.email.student_app_email.to,
+          cc: config.email.student_app_email.cc,
+          bcc: config.email.student_app_email.bcc,
+          has_csv_attachment: institution_list.length > 0,
+          csv_filename: csv_file_name,
+          csv_content: csv_raw_data
+        };
+
+        //build email to send
+        email_content.html = "<div>";
+        email_content.html += "   <div>[SYSTEM GENERATED]</div>";
+        email_content.html += "   <br/><br/>";
+        email_content.html += "   <div>";
+        email_content.html += "       <b>Institution Total : <b/>";
+        email_content.html += institution_list.length;
+        email_content.html += "   </div>";
+        email_content.html += "</div>";
+        email_content.html += "   <br/><br/>";
+
+        //if has content, then attach
+        if (!email_content.has_csv_attachment) {
+          email_content.html += "<div>";
+          email_content.html += "  <b> No New Institution </b>";
+          email_content.html += "</div>";
+        }
+
+        return sendEmail(email_content);
+      })
+      .then(resolve, reject)
+      .catch(reject);
+  });
+}

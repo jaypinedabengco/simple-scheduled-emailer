@@ -58,6 +58,11 @@ module.exports = {
             to: process.env.CSV_REPORT_EMAILER_STUDENT_WITH_STUDY_COMMENCED_APPLICATION_TO,
             cc: process.env.CSV_REPORT_EMAILER_STUDENT_WITH_STUDY_COMMENCED_APPLICATION_CC,
             bcc: process.env.CSV_REPORT_EMAILER_STUDENT_WITH_STUDY_COMMENCED_APPLICATION_BCC
+        },
+        institution: {
+            to: process.env.CSV_REPORT_EMAILER_INSTITUTION_TO,
+            cc: process.env.CSV_REPORT_EMAILER_INSTITUTION_CC,
+            bcc: process.env.CSV_REPORT_EMAILER_INSTITUTION_BCC
         }
     },
     cron: {
@@ -100,6 +105,10 @@ module.exports = {
         student_with_study_commenced_application: {
             timezone: 'Australia/Sydney',
             morning: '00 00 08 * * 1'  //8 AM Monday            
+        },
+        institution: {
+            timezone: 'Australia/Sydney',
+            morning: '00 00 08 * * 7'  //8 AM Sunday
         }
     }
 };

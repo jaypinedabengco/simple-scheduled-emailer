@@ -38,6 +38,7 @@ require('./cron/intake.cron.job');
 require('./cron/weekly-potential-invoice.cron.job');
 require('./cron/student-application-without-invoice.cron.job');
 require('./cron/student-with-study-commenced-application.job');
+require('./cron/institution.job');
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
