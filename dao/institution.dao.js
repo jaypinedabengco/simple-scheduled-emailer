@@ -1,6 +1,8 @@
 var database = require('../provider/mysql.connection');
 
 exports.getInstitutionList = getInstitutionList;
+exports.getCountryList = getCountryList;
+exports.getInstitutionAllowedCountryList = getInstitutionAllowedCountryList;
 
 ////
 
@@ -31,9 +33,6 @@ function getInstitutionList(){
                     DATE_FORMAT(institution_agreement.end_date_agreement, "%M %d, %Y") AS 'End_Date',
                     DATE_FORMAT(IF(institution_institution_engagement_status.date_modified IS NULL, institution_institution_engagement_status.date_created, institution_institution_engagement_status.date_modified), "%M %d, %Y") 'Date_Status_Changed',
                     IF(institution.is_direct IS NULL, '', IF(institution.is_direct, 'Direct', 'Indirect')) 'Direct_Agreement',
-                    (
-                        SELECT IF(count(*) = 0, 'Global', 'Not Global') FROM provider_territory_rules WHERE provider_id = institution_provider.provider_id
-                    ) 'Territory',
                     CONCAT(created_by.firstname, ' ',created_by.lastname) 'Created_By' ,
                     DATE_FORMAT(institution.date_created, "%M %d, %Y") AS 'Date_Created',
                     CONCAT(modified_by.firstname, ' ',modified_by.lastname) 'Modified_By' ,
@@ -67,3 +66,58 @@ function getInstitutionList(){
         });
     });
 }
+
+
+
+function getCountryList(){
+    return new Promise((resolve, reject) => {
+        database.getConnection((err, connection) => {
+            if ( err ){
+                return reject(err);
+            }
+
+        let params = [];
+        let sql = `
+            SELECT DISTINCT 
+                id, 
+                name, 
+                abbreviation code
+            FROM country
+        `;
+        connection.query(sql, params, (err, resultSet) => {
+            if ( err ){
+                connection.release();
+                return reject(err);
+                }
+                connection.release();
+                return resolve(resultSet);
+            });
+        });
+    });
+}
+
+
+
+function getInstitutionAllowedCountryList(){
+    return new Promise((resolve, reject) => {
+        database.getConnection((err, connection) => {
+            if ( err ){
+                return reject(err);
+            }
+
+        let params = [];
+        let sql = `SELECT * FROM provider_territory_rules;`;
+
+        connection.query(sql, params, (err, resultSet) => {
+            if ( err ){
+                connection.release();
+                return reject(err);
+                }
+                connection.release();
+                return resolve(resultSet);
+            });
+        });
+    });
+}
+
+

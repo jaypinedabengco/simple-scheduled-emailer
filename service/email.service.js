@@ -8,6 +8,8 @@ var student_dao = require("./../dao/student.dao"),
   agency_dao = require("./../dao/agency.dao"),
   institutionDao = require("./../dao/institution.dao");
 
+const _u = require("underscore");
+
 ///
 
 // const CSV_FILE_LOCATION = __basedir + '/created-csv-files/';
@@ -673,7 +675,7 @@ function convertDBResultToDynamicCSV(data) {
 //         ];
 
 //         //create location
-//         if ( !fs.existsSync(CSV_FILE_LOCATION) ){
+//         if ( !fs.ExistsSync(CSV_FILE_LOCATION) ){
 //             fs.mkdirSync(CSV_FILE_LOCATION);
 //         }
 
@@ -706,9 +708,24 @@ function sendStudentLatestApplicationViaEmailEveryMonday() {
 
 function sendInstitutionList(){
   return new Promise((resolve, reject) => {
+    let institutionList = [];
+    let originalCountryList = [];
     institutionDao
         .getInstitutionList()
-        .then(sendEmailWithCSVAttachmentForInstitution)
+        .then(results => {
+          institutionList = results;
+          return institutionDao.getCountryList()
+        })
+        .then(countries => {
+          originalCountryList = countries;
+          return institutionDao.getInstitutionAllowedCountryList()
+        })
+        .then((allowedCountryList) => {
+            return sortOutAllowedAndNotAllowedCountries(allowedCountryList, institutionList, originalCountryList);
+        })
+        .then(() => {
+          sendEmailWithCSVAttachmentForInstitution(institutionList);
+        })
         .then(resolve, reject)
         .catch(reject);
   });
@@ -722,6 +739,7 @@ function sendInstitutionList(){
  */
 function sendEmailWithCSVAttachmentForInstitution(institution_list) {
   return new Promise((resolve, reject) => {
+
     var email_timezone = config.cron.institution.timezone;
     var date_process = moment()
       .tz(email_timezone)
@@ -765,5 +783,81 @@ function sendEmailWithCSVAttachmentForInstitution(institution_list) {
       })
       .then(resolve, reject)
       .catch(reject);
+  });
+}
+
+
+
+function sortOutAllowedAndNotAllowedCountries(allowedCountryList, institutionList, originalCountryList) {
+  institutionList.forEach(function (institution) {
+      let countries = [];
+      let NotallowedCountriesFilteredByProviderId = _u.where(allowedCountryList, { "provider_id": institution.Provider_ID });
+    // console.log(NotallowedCountriesFilteredByProviderId.length);
+      
+      if (NotallowedCountriesFilteredByProviderId.length == 0) { // all countries are allowed
+          institution.Territory = 'Global';
+          institution.Excluded = 'None';
+          return;
+      }
+      if (NotallowedCountriesFilteredByProviderId.length == 126) { // meaning allowed and not allowed are the same count, then show allowed and allowed countries
+          let NotallowedCountries = [];
+          let countriesExcluded = [];
+          let countriesAllowed = [];
+          NotallowedCountriesFilteredByProviderId.forEach(function (country) {
+              country.country_code;
+              NotallowedCountries.push(country.country_code);
+          });
+          let countryListCode = [];
+          originalCountryList.forEach(function (country) {
+              countryListCode.push(country.code);
+          });
+          NotallowedCountries.forEach(function (country_code) {
+              let country = _u.findWhere(originalCountryList, { 'code': country_code });
+              countriesExcluded.push(country.name);
+          });
+          let allowedCountryList = _u.difference(countryListCode, NotallowedCountries);
+          allowedCountryList.forEach(function (country_code) {
+              let country = _u.findWhere(originalCountryList, { 'code': country_code });
+              countriesAllowed.push(country.name);
+          });
+          institution.Territory = countriesAllowed.join(',');
+          institution.Excluded = countriesExcluded.join(',');
+          return;
+      }
+      if (NotallowedCountriesFilteredByProviderId.length < 126) { // meaning majority of the countries are allowed, then show all not allowed countries  
+          let NotallowedCountries = [];
+          NotallowedCountriesFilteredByProviderId.forEach(function (country) {
+              country.country_code;
+              NotallowedCountries.push(country.country_code);
+          });
+          let countryListCode = [];
+          originalCountryList.forEach(function (country) {
+              countryListCode.push(country.code);
+          });
+          NotallowedCountries.forEach(function (country_code) {
+              let country = _u.findWhere(originalCountryList, { 'code': country_code });
+              countries.push(country.name);
+          });
+          institution.Territory = 'Not Global';
+          institution.Excluded = countries.join(',');
+      }
+      else { // meaning, majority of the countries are not allowed. then show allowed countries  
+          let NotallowedCountries = [];
+          NotallowedCountriesFilteredByProviderId.forEach(function (country) {
+              country.country_code;
+              NotallowedCountries.push(country.country_code);
+          });
+          let countryListCode = [];
+          originalCountryList.forEach(function (country) {
+              countryListCode.push(country.code);
+          });
+          let allowedCountryList = _u.difference(countryListCode, NotallowedCountries);
+          allowedCountryList.forEach(function (country_code) {
+              let country = _u.findWhere(originalCountryList, { 'code': country_code });
+              countries.push(country.name);
+          });
+          institution.Territory = countries.join(',');
+          institution.Excluded = '-';
+      }
   });
 }
