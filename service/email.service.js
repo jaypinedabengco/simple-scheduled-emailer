@@ -753,9 +753,9 @@ function sendEmailWithCSVAttachmentForInstitution(institution_list) {
           html: "",
           subject: "[System Generated] Institution CSV " + date_process,
           from: config.email.efrom,
-          to: config.email.student_app_email.to,
-          cc: config.email.student_app_email.cc,
-          bcc: config.email.student_app_email.bcc,
+          to: config.email.institution.to,
+          cc: config.email.institution.cc,
+          bcc: config.email.institution.bcc,
           has_csv_attachment: institution_list.length > 0,
           csv_filename: csv_file_name,
           csv_content: csv_raw_data
