@@ -108,7 +108,7 @@ module.exports = {
         },
         institution: {
             timezone: 'Australia/Sydney',
-            morning: '00 00 08 * * 7'  //8 AM Sunday
+            morning: '00 00 08 * * 0'  //8 AM Sunday
         }
     }
 };
