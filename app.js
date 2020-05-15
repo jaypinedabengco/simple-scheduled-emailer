@@ -31,13 +31,13 @@ app.use('/api', require('./routes/healthcheck.route'));
 app.use('/api/trigger', require('./routes/trigger.route'));
 
 //add cronjob
-require('./cron/student-application.cron.job');
-require('./cron/student-full.cron.job');
+// require('./cron/student-application.cron.job');
+// require('./cron/student-full.cron.job');
 require('./cron/agency.cron.job');
-require('./cron/intake.cron.job');
-require('./cron/weekly-potential-invoice.cron.job');
+// require('./cron/intake.cron.job');
+// require('./cron/weekly-potential-invoice.cron.job');
 require('./cron/student-application-without-invoice.cron.job');
-require('./cron/student-with-study-commenced-application.job');
+// require('./cron/student-with-study-commenced-application.job');
 require('./cron/institution.job');
 
 // catch 404 and forward to error handler
